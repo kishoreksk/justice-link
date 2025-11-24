@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Search, Clock, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { Search, Clock, CheckCircle2, AlertCircle, FileText, Video, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Dispute {
@@ -22,6 +22,10 @@ interface Dispute {
   legal_aid_eligible: boolean;
   mediator?: string;
   user_id: string;
+  meeting_date?: string;
+  meeting_link?: string;
+  document_type?: string;
+  final_document?: any;
 }
 
 interface CaseUpdate {
@@ -272,11 +276,101 @@ export default function Track() {
                     <CardDescription>Track the progress of your dispute resolution</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {caseUpdates.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">No updates yet</p>
-                    ) : (
-                      <div className="space-y-6">
-                        {caseUpdates.map((update, index) => (
+                    <div className="space-y-6">
+                      {/* Meeting scheduled item */}
+                      {caseData.meeting_date && (
+                        <div className="flex gap-4">
+                          <div className="flex flex-col items-center">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
+                              <Video className="h-5 w-5" />
+                            </div>
+                            <div className="h-full w-0.5 bg-border" style={{ minHeight: '40px' }} />
+                          </div>
+                          
+                          <div className="flex-1 pb-6">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-foreground">Meeting Scheduled</h3>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                  A video meeting has been scheduled for{' '}
+                                  {new Date(caseData.meeting_date).toLocaleString('en-IN', {
+                                    dateStyle: 'long',
+                                    timeStyle: 'short'
+                                  })}
+                                </p>
+                                {caseData.meeting_link && (
+                                  <Button 
+                                    variant="link" 
+                                    className="mt-2 h-auto p-0 text-primary"
+                                    onClick={() => window.open(caseData.meeting_link, '_blank')}
+                                  >
+                                    Join Meeting <ExternalLink className="ml-1 h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(caseData.meeting_date).toLocaleDateString('en-IN', { 
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Document issued item */}
+                      {caseData.document_type && caseData.final_document && (
+                        <div className="flex gap-4">
+                          <div className="flex flex-col items-center">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/20 text-secondary">
+                              <FileText className="h-5 w-5" />
+                            </div>
+                            <div className="h-full w-0.5 bg-border" style={{ minHeight: '40px' }} />
+                          </div>
+                          
+                          <div className="flex-1 pb-6">
+                            <div className="flex items-start justify-between flex-col gap-2">
+                              <div className="flex-1 w-full">
+                                <div className="flex items-center justify-between">
+                                  <h3 className="font-semibold text-foreground">
+                                    {caseData.document_type === 'settlement' ? 'Settlement Agreement' :
+                                     caseData.document_type === 'award' ? 'Arbitration Award' :
+                                     'Mediation Report'}
+                                  </h3>
+                                  <Badge variant="secondary">Document Issued</Badge>
+                                </div>
+                                <div className="mt-3 space-y-3 rounded-lg border bg-muted/30 p-4">
+                                  {caseData.final_document.summary && (
+                                    <div>
+                                      <p className="text-xs font-medium text-muted-foreground uppercase">Summary</p>
+                                      <p className="mt-1 text-sm text-foreground">{caseData.final_document.summary}</p>
+                                    </div>
+                                  )}
+                                  {caseData.final_document.outcome && (
+                                    <div>
+                                      <p className="text-xs font-medium text-muted-foreground uppercase">Outcome</p>
+                                      <p className="mt-1 text-sm text-foreground">{caseData.final_document.outcome}</p>
+                                    </div>
+                                  )}
+                                  {caseData.final_document.terms && (
+                                    <div>
+                                      <p className="text-xs font-medium text-muted-foreground uppercase">Terms</p>
+                                      <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">{caseData.final_document.terms}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Regular case updates */}
+                      {caseUpdates.length === 0 && !caseData.meeting_date && !caseData.document_type ? (
+                        <p className="text-center text-muted-foreground py-8">No updates yet</p>
+                      ) : (
+                        caseUpdates.map((update, index) => (
                           <div key={update.id} className="flex gap-4">
                             <div className="flex flex-col items-center">
                               <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
@@ -310,9 +404,9 @@ export default function Track() {
                               </div>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        ))
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
                 
