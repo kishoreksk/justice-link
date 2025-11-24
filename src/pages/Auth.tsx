@@ -60,10 +60,8 @@ export default function Auth() {
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user && event === 'SIGNED_IN') {
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 0);
+        if (session?.user) {
+          navigate('/dashboard', { replace: true });
         }
       }
     );
@@ -73,7 +71,7 @@ export default function Auth() {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       }
     });
 
