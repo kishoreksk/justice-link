@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Scale, LogOut, User, Users } from "lucide-react";
+import { Scale, LogOut, User, Users, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -149,12 +149,20 @@ export const Navbar = () => {
                     </Link>
                   </DropdownMenuItem>
                   {userRole === 'admin' && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin" className="cursor-pointer">
-                        <Users className="mr-2 h-4 w-4" />
-                        Professionals
-                      </Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="cursor-pointer">
+                          <Users className="mr-2 h-4 w-4" />
+                          Professionals
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/roles" className="cursor-pointer">
+                          <Shield className="mr-2 h-4 w-4" />
+                          Manage Roles
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
