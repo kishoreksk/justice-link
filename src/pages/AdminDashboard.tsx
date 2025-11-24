@@ -39,12 +39,17 @@ import {
   type Professional,
 } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProfessional, setEditingProfessional] = useState<Professional | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -57,8 +62,42 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    loadProfessionals();
+    checkAdminRole();
   }, []);
+
+  const checkAdminRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Access Denied",
+        description: "Please log in to access this page.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (roleData?.role !== 'admin') {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to access this page.",
+        variant: "destructive",
+      });
+      navigate('/dashboard');
+      return;
+    }
+
+    setIsAdmin(true);
+    setLoading(false);
+    loadProfessionals();
+  };
 
   const loadProfessionals = () => {
     setProfessionals(getProfessionals());
@@ -147,7 +186,12 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
 
-      <main className="flex-1 bg-background py-12">
+      {loading ? (
+        <main className="flex-1 bg-background py-12 flex items-center justify-center">
+          <div>Loading...</div>
+        </main>
+      ) : !isAdmin ? null : (
+        <main className="flex-1 bg-background py-12">
         <div className="container mx-auto px-4">
           <div className="mb-8 flex items-center justify-between">
             <div>
@@ -415,6 +459,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </main>
+      )}
 
       <Footer />
     </div>

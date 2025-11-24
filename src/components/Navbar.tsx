@@ -17,6 +17,7 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 export const Navbar = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userName, setUserName] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -53,6 +54,17 @@ export const Navbar = () => {
 
     if (data && !error) {
       setUserName(data.full_name || "User");
+    }
+
+    // Load user role
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .single();
+
+    if (roleData) {
+      setUserRole(roleData.role);
     }
   };
 
@@ -98,9 +110,11 @@ export const Navbar = () => {
             <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Dashboard
             </Link>
-            <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Professionals
-            </Link>
+            {userRole === 'admin' && (
+              <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                Professionals
+              </Link>
+            )}
             <Link to="/about" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               About
             </Link>

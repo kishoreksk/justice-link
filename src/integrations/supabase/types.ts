@@ -14,6 +14,164 @@ export type Database = {
   }
   public: {
     Tables: {
+      case_updates: {
+        Row: {
+          created_at: string
+          date: string
+          description: string
+          dispute_id: string
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          description: string
+          dispute_id: string
+          id?: string
+          status: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string
+          dispute_id?: string
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_updates_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          applicant_address: string | null
+          applicant_email: string
+          applicant_income: string | null
+          applicant_name: string
+          applicant_phone: string
+          assigned_professional_id: string | null
+          case_id: string
+          contract_type: string
+          created_at: string
+          dispute_description: string
+          filed_date: string
+          id: string
+          legal_aid_eligible: boolean
+          mediator: string | null
+          next_hearing: string | null
+          resolution_type: string
+          respondent_address: string | null
+          respondent_email: string | null
+          respondent_name: string
+          respondent_phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applicant_address?: string | null
+          applicant_email: string
+          applicant_income?: string | null
+          applicant_name: string
+          applicant_phone: string
+          assigned_professional_id?: string | null
+          case_id: string
+          contract_type: string
+          created_at?: string
+          dispute_description: string
+          filed_date?: string
+          id?: string
+          legal_aid_eligible?: boolean
+          mediator?: string | null
+          next_hearing?: string | null
+          resolution_type: string
+          respondent_address?: string | null
+          respondent_email?: string | null
+          respondent_name: string
+          respondent_phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applicant_address?: string | null
+          applicant_email?: string
+          applicant_income?: string | null
+          applicant_name?: string
+          applicant_phone?: string
+          assigned_professional_id?: string | null
+          case_id?: string
+          contract_type?: string
+          created_at?: string
+          dispute_description?: string
+          filed_date?: string
+          id?: string
+          legal_aid_eligible?: boolean
+          mediator?: string | null
+          next_hearing?: string | null
+          resolution_type?: string
+          respondent_address?: string | null
+          respondent_email?: string | null
+          respondent_name?: string
+          respondent_phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      professionals: {
+        Row: {
+          cases_handled: number
+          created_at: string
+          email: string
+          experience: number
+          id: string
+          name: string
+          phone: string
+          specialization: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          cases_handled?: number
+          created_at?: string
+          email: string
+          experience: number
+          id?: string
+          name: string
+          phone: string
+          specialization: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          cases_handled?: number
+          created_at?: string
+          email?: string
+          experience?: number
+          id?: string
+          name?: string
+          phone?: string
+          specialization?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
