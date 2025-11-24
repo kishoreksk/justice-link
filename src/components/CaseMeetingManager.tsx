@@ -1,0 +1,309 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar, Video, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+interface Dispute {
+  id: string;
+  case_id: string;
+  user_id: string;
+  status: string;
+  resolution_type: string;
+  meeting_date?: string;
+  meeting_link?: string;
+  document_type?: string;
+  final_document?: any;
+}
+
+interface CaseMeetingManagerProps {
+  dispute: Dispute;
+  onUpdate: () => void;
+}
+
+export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProps) => {
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [isDocumentOpen, setIsDocumentOpen] = useState(false);
+  const { toast } = useToast();
+
+  const [meetingData, setMeetingData] = useState({
+    meeting_date: dispute.meeting_date || "",
+    meeting_link: dispute.meeting_link || "",
+  });
+
+  const [documentData, setDocumentData] = useState({
+    document_type: dispute.document_type || "",
+    summary: "",
+    outcome: "",
+    terms: "",
+    remarks: "",
+  });
+
+  const handleScheduleMeeting = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const { error } = await supabase
+      .from("disputes")
+      .update({
+        meeting_date: meetingData.meeting_date,
+        meeting_link: meetingData.meeting_link,
+        status: "Meeting Scheduled",
+      })
+      .eq("id", dispute.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to schedule meeting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create notification for user
+    await supabase.from("notifications").insert({
+      user_id: dispute.user_id,
+      dispute_id: dispute.id,
+      type: "meeting_scheduled",
+      title: "Meeting Scheduled",
+      message: `A video conference has been scheduled for case ${dispute.case_id} on ${new Date(meetingData.meeting_date).toLocaleString()}`,
+    });
+
+    toast({
+      title: "Meeting Scheduled",
+      description: "The parties have been notified.",
+    });
+
+    setIsScheduleOpen(false);
+    onUpdate();
+  };
+
+  const handleIssueDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const finalDocument = {
+      document_type: documentData.document_type,
+      summary: documentData.summary,
+      outcome: documentData.outcome,
+      terms: documentData.terms,
+      remarks: documentData.remarks,
+      issued_date: new Date().toISOString(),
+    };
+
+    const { error } = await supabase
+      .from("disputes")
+      .update({
+        document_type: documentData.document_type,
+        final_document: finalDocument,
+        status: documentData.document_type === "arbitration_award" 
+          ? "Arbitration Award Issued" 
+          : "Mediation Report Issued",
+      })
+      .eq("id", dispute.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to issue document.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create notification for user
+    await supabase.from("notifications").insert({
+      user_id: dispute.user_id,
+      dispute_id: dispute.id,
+      type: "document_issued",
+      title: "Final Document Issued",
+      message: `${documentData.document_type === "arbitration_award" ? "Arbitration Award" : "Mediation Report"} has been issued for case ${dispute.case_id}`,
+    });
+
+    toast({
+      title: "Document Issued",
+      description: "The final document has been recorded successfully.",
+    });
+
+    setIsDocumentOpen(false);
+    onUpdate();
+  };
+
+  return (
+    <div className="flex gap-2">
+      {/* Schedule Meeting Dialog */}
+      <Dialog open={isScheduleOpen} onOpenChange={setIsScheduleOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Video className="mr-2 h-4 w-4" />
+            Schedule Meeting
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px]">
+          <form onSubmit={handleScheduleMeeting}>
+            <DialogHeader>
+              <DialogTitle>Schedule Video Conference</DialogTitle>
+              <DialogDescription>
+                Set up a meeting for case {dispute.case_id}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="meeting_date">Meeting Date & Time</Label>
+                <Input
+                  id="meeting_date"
+                  type="datetime-local"
+                  required
+                  value={meetingData.meeting_date}
+                  onChange={(e) =>
+                    setMeetingData({ ...meetingData, meeting_date: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="meeting_link">Meeting Link</Label>
+                <Input
+                  id="meeting_link"
+                  type="url"
+                  placeholder="https://meet.google.com/..."
+                  required
+                  value={meetingData.meeting_link}
+                  onChange={(e) =>
+                    setMeetingData({ ...meetingData, meeting_link: e.target.value })
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Provide a Google Meet, Zoom, or Teams link
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="submit">Schedule Meeting</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Issue Document Dialog */}
+      <Dialog open={isDocumentOpen} onOpenChange={setIsDocumentOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <FileText className="mr-2 h-4 w-4" />
+            Issue Document
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <form onSubmit={handleIssueDocument}>
+            <DialogHeader>
+              <DialogTitle>Issue Final Document</DialogTitle>
+              <DialogDescription>
+                Record the final outcome for case {dispute.case_id}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="document_type">Document Type</Label>
+                <Select
+                  value={documentData.document_type}
+                  onValueChange={(value) =>
+                    setDocumentData({ ...documentData, document_type: value })
+                  }
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select document type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="arbitration_award">Arbitration Award</SelectItem>
+                    <SelectItem value="mediation_report">Mediation Report</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="summary">Summary</Label>
+                <Textarea
+                  id="summary"
+                  placeholder="Brief summary of the case and proceedings"
+                  required
+                  rows={3}
+                  value={documentData.summary}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, summary: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="outcome">Outcome/Decision</Label>
+                <Textarea
+                  id="outcome"
+                  placeholder="Final decision or agreement reached"
+                  required
+                  rows={3}
+                  value={documentData.outcome}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, outcome: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="terms">Terms & Conditions</Label>
+                <Textarea
+                  id="terms"
+                  placeholder="Specific terms, obligations, or timelines"
+                  required
+                  rows={3}
+                  value={documentData.terms}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, terms: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="remarks">Additional Remarks</Label>
+                <Textarea
+                  id="remarks"
+                  placeholder="Any additional notes or observations (optional)"
+                  rows={2}
+                  value={documentData.remarks}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, remarks: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="submit">Issue Document</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};

@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { NotificationsBell } from "@/components/NotificationsBell";
 
 export const Navbar = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -132,13 +133,15 @@ export const Navbar = () => {
           
           <div className="flex items-center gap-2">
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <User className="h-4 w-4" />
-                    <span className="hidden sm:inline">{userName}</span>
-                  </Button>
-                </DropdownMenuTrigger>
+              <>
+                <NotificationsBell />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <User className="h-4 w-4" />
+                      <span className="hidden sm:inline">{userName}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -171,6 +174,7 @@ export const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </>
             ) : (
               <>
                 <Button size="sm" variant="outline" asChild>
