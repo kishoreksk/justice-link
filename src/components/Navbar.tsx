@@ -106,13 +106,19 @@ export const Navbar = () => {
                 File Dispute
               </Link>
             )}
-            <Link to="/track" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Track Case
-            </Link>
-            {userRole !== 'client' && (
+            {userRole === 'client' ? (
               <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                Dashboard
+                My Cases
               </Link>
+            ) : (
+              <>
+                <Link to="/track" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                  Track Case
+                </Link>
+                <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                  Dashboard
+                </Link>
+              </>
             )}
             {userRole === 'admin' && (
               <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
