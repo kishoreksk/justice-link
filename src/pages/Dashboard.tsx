@@ -183,6 +183,7 @@ export default function Dashboard() {
                       <TableHead>Case ID</TableHead>
                       <TableHead>Applicant</TableHead>
                       <TableHead>Contract Type</TableHead>
+                      <TableHead>Resolution Method</TableHead>
                       <TableHead>Filed Date</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Assigned To</TableHead>
@@ -198,6 +199,11 @@ export default function Dashboard() {
                           <TableCell className="font-medium">{dispute.caseId}</TableCell>
                           <TableCell>{dispute.applicant.name}</TableCell>
                           <TableCell>{dispute.contractType}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">
+                              {dispute.resolutionType.replace('_', ' ')}
+                            </Badge>
+                          </TableCell>
                           <TableCell>
                             {new Date(dispute.filedDate).toLocaleDateString("en-IN", {
                               year: "numeric",

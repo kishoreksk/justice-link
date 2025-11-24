@@ -34,6 +34,7 @@ export default function Register() {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     contractType: "",
+    resolutionType: "",
     issueDescription: "",
     contractDate: "",
     applicantName: "",
@@ -87,6 +88,7 @@ export default function Register() {
         address: formData.respondentAddress || "",
       },
       contractType: formData.contractType,
+      resolutionType: formData.resolutionType as 'arbitration' | 'mediation' | 'negotiation' | 'conciliation' | 'legal_aid',
       disputeDescription: formData.issueDescription,
       filedDate: new Date().toISOString(),
       status: "Pending Review",
@@ -192,6 +194,29 @@ export default function Register() {
                             ))}
                           </SelectContent>
                         </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="resolutionType">Preferred Resolution Method *</Label>
+                        <Select
+                          value={formData.resolutionType}
+                          onValueChange={(value) => handleInputChange("resolutionType", value)}
+                          required
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select resolution method" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background z-50">
+                            <SelectItem value="mediation">Mediation</SelectItem>
+                            <SelectItem value="arbitration">Arbitration</SelectItem>
+                            <SelectItem value="negotiation">Negotiation</SelectItem>
+                            <SelectItem value="conciliation">Conciliation</SelectItem>
+                            <SelectItem value="legal_aid">Free Legal Aid Service</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Choose your preferred method for dispute resolution
+                        </p>
                       </div>
                       
                       <div className="space-y-2">
