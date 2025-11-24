@@ -80,20 +80,21 @@ export default function Track() {
     
     if (!user) return;
 
-    const { data: dispute } = await supabase
+    const { data: dispute, error } = await supabase
       .from('disputes')
       .select('*')
       .eq('case_id', id)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (!dispute) {
+    if (error || !dispute) {
       toast({
         title: "Case Not Found",
         description: "No case found with this ID or you don't have access to it.",
         variant: "destructive",
       });
       setCaseData(null);
+      setCaseUpdates([]);
       return;
     }
 
