@@ -101,15 +101,19 @@ export const Navbar = () => {
             <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <Link to="/register" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              File Dispute
-            </Link>
+            {userRole !== 'client' && (
+              <Link to="/register" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                File Dispute
+              </Link>
+            )}
             <Link to="/track" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Track Case
             </Link>
-            <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Dashboard
-            </Link>
+            {userRole !== 'client' && (
+              <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                Dashboard
+              </Link>
+            )}
             {userRole === 'admin' && (
               <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                 Professionals

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,56 +29,160 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileText, Clock, CheckCircle2, AlertCircle, UserPlus } from "lucide-react";
-import { getDisputes, updateDispute, getProfessionals, getProfessionalById, type Dispute } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+interface Dispute {
+  id: string;
+  case_id: string;
+  applicant_name: string;
+  applicant_email: string;
+  applicant_phone: string;
+  respondent_name: string;
+  contract_type: string;
+  resolution_type: string;
+  dispute_description: string;
+  status: string;
+  filed_date: string;
+  legal_aid_eligible: boolean;
+  assigned_professional_id?: string;
+  mediator?: string;
+}
+
+interface Professional {
+  id: string;
+  name: string;
+  type: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  experience: number;
+  status: string;
+}
 
 export default function Dashboard() {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
   const [selectedProfessionalId, setSelectedProfessionalId] = useState("");
+  const [userRole, setUserRole] = useState<string>("");
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    loadDisputes();
+    checkAuthAndLoadData();
   }, []);
 
-  const loadDisputes = () => {
-    setDisputes(getDisputes());
+  const checkAuthAndLoadData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Access Denied",
+        description: "Please log in to access your dashboard.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (roleData?.role === 'client') {
+      toast({
+        title: "Access Denied",
+        description: "Clients should use the Track Case page.",
+        variant: "destructive",
+      });
+      navigate('/track');
+      return;
+    }
+
+    setUserRole(roleData?.role || '');
+    await Promise.all([loadDisputes(user.id, roleData?.role), loadProfessionals()]);
+    setLoading(false);
+  };
+
+  const loadDisputes = async (userId: string, role: string) => {
+    const { data, error } = await supabase
+      .from('disputes')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load disputes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setDisputes(data || []);
+  };
+
+  const loadProfessionals = async () => {
+    const { data } = await supabase
+      .from('professionals')
+      .select('*')
+      .eq('status', 'active');
+
+    setProfessionals(data || []);
   };
 
   const handleAssignClick = (dispute: Dispute) => {
     setSelectedDispute(dispute);
-    setSelectedProfessionalId(dispute.assignedProfessionalId || "");
+    setSelectedProfessionalId(dispute.assigned_professional_id || "");
     setIsAssignDialogOpen(true);
   };
 
-  const handleAssignProfessional = () => {
+  const handleAssignProfessional = async () => {
     if (!selectedDispute || !selectedProfessionalId) return;
 
-    const professional = getProfessionalById(selectedProfessionalId);
+    const professional = professionals.find(p => p.id === selectedProfessionalId);
     if (!professional) return;
 
-    updateDispute(selectedDispute.id, {
-      assignedProfessionalId: selectedProfessionalId,
-      mediator: professional.name,
-      status: "In Progress - Professional Assigned",
-    });
+    const { error } = await supabase
+      .from('disputes')
+      .update({
+        assigned_professional_id: selectedProfessionalId,
+        mediator: professional.name,
+        status: "In Progress - Professional Assigned",
+      })
+      .eq('id', selectedDispute.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to assign professional.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     toast({
       title: "Professional Assigned",
-      description: `${professional.name} has been assigned to case ${selectedDispute.caseId}`,
+      description: `${professional.name} has been assigned to case ${selectedDispute.case_id}`,
     });
 
-    loadDisputes();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await loadDisputes(user.id, userRole);
+    }
     setIsAssignDialogOpen(false);
     setSelectedDispute(null);
     setSelectedProfessionalId("");
   };
 
   const getAssignedProfessional = (dispute: Dispute) => {
-    if (!dispute.assignedProfessionalId) return null;
-    return getProfessionalById(dispute.assignedProfessionalId);
+    if (!dispute.assigned_professional_id) return null;
+    return professionals.find(p => p.id === dispute.assigned_professional_id);
   };
 
   const getStatusIcon = (status: string) => {
@@ -97,6 +201,18 @@ export default function Dashboard() {
     inProgress: disputes.filter((d) => d.status.includes("Progress")).length,
     resolved: disputes.filter((d) => d.status.includes("Resolved") || d.status.includes("Closed")).length,
   };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex-1 bg-background py-12 flex items-center justify-center">
+          <div>Loading...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -192,24 +308,24 @@ export default function Dashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {disputes.map((dispute) => {
+                     {disputes.map((dispute) => {
                       const assignedProfessional = getAssignedProfessional(dispute);
                       return (
                         <TableRow key={dispute.id}>
-                          <TableCell className="font-medium">{dispute.caseId}</TableCell>
-                          <TableCell>{dispute.applicant.name}</TableCell>
-                          <TableCell>{dispute.contractType}</TableCell>
+                          <TableCell className="font-medium">{dispute.case_id}</TableCell>
+                          <TableCell>{dispute.applicant_name}</TableCell>
+                          <TableCell>{dispute.contract_type}</TableCell>
                           <TableCell>
-                            {dispute.resolutionType ? (
+                            {dispute.resolution_type ? (
                               <Badge variant="outline" className="capitalize">
-                                {dispute.resolutionType.replace('_', ' ')}
+                                {dispute.resolution_type.replace('_', ' ')}
                               </Badge>
                             ) : (
                               <span className="text-sm text-muted-foreground">Not specified</span>
                             )}
                           </TableCell>
                           <TableCell>
-                            {new Date(dispute.filedDate).toLocaleDateString("en-IN", {
+                            {new Date(dispute.filed_date).toLocaleDateString("en-IN", {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
@@ -234,8 +350,8 @@ export default function Dashboard() {
                             )}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={dispute.legalAidEligible ? "default" : "secondary"}>
-                              {dispute.legalAidEligible ? "Eligible" : "Not Eligible"}
+                            <Badge variant={dispute.legal_aid_eligible ? "default" : "secondary"}>
+                              {dispute.legal_aid_eligible ? "Eligible" : "Not Eligible"}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
@@ -249,7 +365,7 @@ export default function Dashboard() {
                                 Assign
                               </Button>
                               <Button variant="outline" size="sm" asChild>
-                                <Link to={`/track?caseId=${dispute.caseId}`}>View</Link>
+                                <Link to={`/track?caseId=${dispute.case_id}`}>View</Link>
                               </Button>
                             </div>
                           </TableCell>
@@ -270,7 +386,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle>Assign Professional</DialogTitle>
             <DialogDescription>
-              Select a professional to assign to case {selectedDispute?.caseId}
+              Select a professional to assign to case {selectedDispute?.case_id}
             </DialogDescription>
           </DialogHeader>
 
@@ -285,48 +401,46 @@ export default function Dashboard() {
                   <SelectValue placeholder="Choose a professional..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {getProfessionals()
-                    .filter((p) => p.status === "active")
-                    .map((professional) => (
-                      <SelectItem key={professional.id} value={professional.id}>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{professional.name}</span>
-                          <span className="text-muted-foreground text-xs">
-                            ({professional.type.replace("_", " ")})
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                  {professionals.map((professional) => (
+                    <SelectItem key={professional.id} value={professional.id}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{professional.name}</span>
+                        <span className="text-muted-foreground text-xs">
+                          ({professional.type.replace("_", " ")})
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {selectedProfessionalId && getProfessionalById(selectedProfessionalId) && (
+            {selectedProfessionalId && professionals.find(p => p.id === selectedProfessionalId) && (
               <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
                 <h4 className="font-semibold text-sm">Professional Details</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Specialization:</span>
                     <p className="font-medium">
-                      {getProfessionalById(selectedProfessionalId)?.specialization}
+                      {professionals.find(p => p.id === selectedProfessionalId)?.specialization}
                     </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Experience:</span>
                     <p className="font-medium">
-                      {getProfessionalById(selectedProfessionalId)?.experience} years
+                      {professionals.find(p => p.id === selectedProfessionalId)?.experience} years
                     </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Email:</span>
                     <p className="font-medium">
-                      {getProfessionalById(selectedProfessionalId)?.email}
+                      {professionals.find(p => p.id === selectedProfessionalId)?.email}
                     </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Phone:</span>
                     <p className="font-medium">
-                      {getProfessionalById(selectedProfessionalId)?.phone}
+                      {professionals.find(p => p.id === selectedProfessionalId)?.phone}
                     </p>
                   </div>
                 </div>
