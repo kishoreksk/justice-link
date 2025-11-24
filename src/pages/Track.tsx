@@ -66,12 +66,26 @@ export default function Track() {
       return;
     }
 
-    const { data } = await supabase
+    // Check if user is admin
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    const isAdmin = roleData?.role === 'admin';
+
+    // Admins can see all disputes, others only see their own
+    let query = supabase
       .from('disputes')
       .select('*')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
+    if (!isAdmin) {
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data } = await query;
     setUserDisputes(data || []);
   };
 
@@ -80,12 +94,26 @@ export default function Track() {
     
     if (!user) return;
 
-    const { data: dispute, error } = await supabase
+    // Check if user is admin
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    const isAdmin = roleData?.role === 'admin';
+
+    // Admins can view any case, others only their own
+    let query = supabase
       .from('disputes')
       .select('*')
-      .eq('case_id', id)
-      .eq('user_id', user.id)
-      .maybeSingle();
+      .eq('case_id', id);
+
+    if (!isAdmin) {
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data: dispute, error } = await query.maybeSingle();
 
     if (error || !dispute) {
       toast({
