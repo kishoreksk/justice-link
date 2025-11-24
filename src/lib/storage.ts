@@ -16,6 +16,7 @@ export interface Dispute {
     address: string;
   };
   contractType: string;
+  resolutionType: 'arbitration' | 'mediation' | 'negotiation' | 'conciliation' | 'legal_aid';
   disputeDescription: string;
   documents?: string[];
   filedDate: string;

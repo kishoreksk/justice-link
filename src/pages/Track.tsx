@@ -105,6 +105,12 @@ export default function Track() {
                         <p className="font-medium text-foreground">{caseData.contractType}</p>
                       </div>
                       <div>
+                        <p className="text-sm text-muted-foreground">Resolution Method</p>
+                        <p className="font-medium text-foreground capitalize">
+                          {caseData.resolutionType.replace('_', ' ')}
+                        </p>
+                      </div>
+                      <div>
                         <p className="text-sm text-muted-foreground">Mediator</p>
                         <p className="font-medium text-foreground">{caseData.mediator || "Not Assigned"}</p>
                       </div>
