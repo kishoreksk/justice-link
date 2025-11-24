@@ -200,9 +200,13 @@ export default function Dashboard() {
                           <TableCell>{dispute.applicant.name}</TableCell>
                           <TableCell>{dispute.contractType}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className="capitalize">
-                              {dispute.resolutionType.replace('_', ' ')}
-                            </Badge>
+                            {dispute.resolutionType ? (
+                              <Badge variant="outline" className="capitalize">
+                                {dispute.resolutionType.replace('_', ' ')}
+                              </Badge>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">Not specified</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {new Date(dispute.filedDate).toLocaleDateString("en-IN", {
