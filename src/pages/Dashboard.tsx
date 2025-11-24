@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CaseMeetingManager } from "@/components/CaseMeetingManager";
 import {
   Table,
   TableBody,
@@ -35,6 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 interface Dispute {
   id: string;
   case_id: string;
+  user_id: string;
   applicant_name: string;
   applicant_email: string;
   applicant_phone: string;
@@ -47,6 +49,10 @@ interface Dispute {
   legal_aid_eligible: boolean;
   assigned_professional_id?: string;
   mediator?: string;
+  meeting_date?: string;
+  meeting_link?: string;
+  document_type?: string;
+  final_document?: any;
 }
 
 interface Professional {
@@ -339,6 +345,39 @@ export default function Dashboard() {
                             </Badge>
                           </div>
                         </div>
+
+                        {dispute.meeting_date && (
+                          <div className="border-t border-border pt-3 mt-3">
+                            <p className="text-xs text-muted-foreground mb-2">Scheduled Meeting</p>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium text-sm">
+                                  {new Date(dispute.meeting_date).toLocaleString()}
+                                </p>
+                                {dispute.meeting_link && (
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="h-auto p-0 text-xs"
+                                    asChild
+                                  >
+                                    <a href={dispute.meeting_link} target="_blank" rel="noopener noreferrer">
+                                      Join Meeting →
+                                    </a>
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {dispute.final_document && (
+                          <div className="border-t border-border pt-3 mt-3">
+                            <Badge variant="secondary" className="text-xs">
+                              {dispute.document_type === "arbitration_award" ? "Arbitration Award Issued" : "Mediation Report Issued"}
+                            </Badge>
+                          </div>
+                        )}
                         
                         <Button asChild className="w-full">
                           <Link to={`/track?caseId=${dispute.case_id}`}>
@@ -361,7 +400,7 @@ export default function Dashboard() {
                       <TableHead>Filed Date</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Assigned To</TableHead>
-                      <TableHead>Legal Aid</TableHead>
+                      <TableHead>Meeting</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -408,20 +447,40 @@ export default function Dashboard() {
                             )}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={dispute.legal_aid_eligible ? "default" : "secondary"}>
-                              {dispute.legal_aid_eligible ? "Eligible" : "Not Eligible"}
-                            </Badge>
+                            {dispute.meeting_date ? (
+                              <div className="text-sm">
+                                <div className="font-medium">
+                                  {new Date(dispute.meeting_date).toLocaleDateString()}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {new Date(dispute.meeting_date).toLocaleTimeString()}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">Not scheduled</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleAssignClick(dispute)}
-                              >
-                                <UserPlus className="mr-1 h-3 w-3" />
-                                Assign
-                              </Button>
+                            <div className="flex justify-end gap-2 flex-wrap">
+                              {!dispute.assigned_professional_id && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleAssignClick(dispute)}
+                                >
+                                  <UserPlus className="mr-1 h-3 w-3" />
+                                  Assign
+                                </Button>
+                              )}
+                              {dispute.assigned_professional_id && userRole === 'admin' && (
+                                <CaseMeetingManager
+                                  dispute={dispute as any}
+                                  onUpdate={async () => {
+                                    const { data: { user } } = await supabase.auth.getUser();
+                                    if (user) await loadDisputes(user.id, userRole);
+                                  }}
+                                />
+                              )}
                               <Button variant="outline" size="sm" asChild>
                                 <Link to={`/track?caseId=${dispute.case_id}`}>View</Link>
                               </Button>
