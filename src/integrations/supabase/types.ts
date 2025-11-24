@@ -64,10 +64,14 @@ export type Database = {
           contract_type: string
           created_at: string
           dispute_description: string
+          document_type: string | null
           filed_date: string
+          final_document: Json | null
           id: string
           legal_aid_eligible: boolean
           mediator: string | null
+          meeting_date: string | null
+          meeting_link: string | null
           next_hearing: string | null
           resolution_type: string
           respondent_address: string | null
@@ -89,10 +93,14 @@ export type Database = {
           contract_type: string
           created_at?: string
           dispute_description: string
+          document_type?: string | null
           filed_date?: string
+          final_document?: Json | null
           id?: string
           legal_aid_eligible?: boolean
           mediator?: string | null
+          meeting_date?: string | null
+          meeting_link?: string | null
           next_hearing?: string | null
           resolution_type: string
           respondent_address?: string | null
@@ -114,10 +122,14 @@ export type Database = {
           contract_type?: string
           created_at?: string
           dispute_description?: string
+          document_type?: string | null
           filed_date?: string
+          final_document?: Json | null
           id?: string
           legal_aid_eligible?: boolean
           mediator?: string | null
+          meeting_date?: string | null
+          meeting_link?: string | null
           next_hearing?: string | null
           resolution_type?: string
           respondent_address?: string | null
@@ -129,6 +141,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          dispute_id: string | null
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dispute_id?: string | null
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dispute_id?: string | null
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       professionals: {
         Row: {
