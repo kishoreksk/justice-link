@@ -35,9 +35,14 @@ export const Navbar = () => {
             </Link>
           </div>
           
-          <Button size="sm" variant="success" asChild>
-            <Link to="/register">Get Started</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/auth">Sign In</Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link to="/register">Get Started</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </nav>
