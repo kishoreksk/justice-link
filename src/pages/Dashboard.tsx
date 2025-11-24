@@ -94,26 +94,20 @@ export default function Dashboard() {
       .eq('user_id', user.id)
       .single();
 
-    if (roleData?.role === 'client') {
-      toast({
-        title: "Access Denied",
-        description: "Clients should use the Track Case page.",
-        variant: "destructive",
-      });
-      navigate('/track');
-      return;
-    }
-
     setUserRole(roleData?.role || '');
     await Promise.all([loadDisputes(user.id, roleData?.role), loadProfessionals()]);
     setLoading(false);
   };
 
   const loadDisputes = async (userId: string, role: string) => {
-    const { data, error } = await supabase
-      .from('disputes')
-      .select('*')
-      .order('created_at', { ascending: false });
+    let query = supabase.from('disputes').select('*');
+    
+    // Clients only see their own disputes
+    if (role === 'client') {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       toast({
@@ -221,9 +215,13 @@ export default function Dashboard() {
       <main className="flex-1 bg-background py-12">
         <div className="container mx-auto px-4">
           <div className="mb-8">
-            <h1 className="mb-2 text-3xl font-bold text-foreground">Disputes Dashboard</h1>
+            <h1 className="mb-2 text-3xl font-bold text-foreground">
+              {userRole === 'client' ? 'My Cases' : 'Disputes Dashboard'}
+            </h1>
             <p className="text-muted-foreground">
-              Overview of all registered disputes and their current status
+              {userRole === 'client' 
+                ? 'View and track all your registered cases' 
+                : 'Overview of all registered disputes and their current status'}
             </p>
           </div>
 
@@ -274,23 +272,83 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* Disputes Table */}
+          {/* Disputes Table/List */}
           <Card>
             <CardHeader>
-              <CardTitle>All Disputes</CardTitle>
-              <CardDescription>A complete list of registered disputes</CardDescription>
+              <CardTitle>{userRole === 'client' ? 'Your Cases' : 'All Disputes'}</CardTitle>
+              <CardDescription>
+                {userRole === 'client' 
+                  ? 'Click on "Track Case" to view detailed progress' 
+                  : 'A complete list of registered disputes'}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {disputes.length === 0 ? (
                 <div className="py-12 text-center">
                   <FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                  <h3 className="mb-2 text-lg font-semibold text-foreground">No disputes yet</h3>
+                  <h3 className="mb-2 text-lg font-semibold text-foreground">No {userRole === 'client' ? 'cases' : 'disputes'} yet</h3>
                   <p className="mb-4 text-sm text-muted-foreground">
-                    Disputes will appear here once they are registered
+                    {userRole === 'client' 
+                      ? 'Your registered cases will appear here' 
+                      : 'Disputes will appear here once they are registered'}
                   </p>
-                  <Button asChild>
-                    <Link to="/register">Register New Dispute</Link>
-                  </Button>
+                  {userRole === 'client' && (
+                    <Button asChild>
+                      <Link to="/register">Register New Case</Link>
+                    </Button>
+                  )}
+                </div>
+              ) : userRole === 'client' ? (
+                <div className="space-y-4">
+                  {disputes.map((dispute) => (
+                    <Card key={dispute.id} className="border-l-4 border-l-primary">
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="text-lg font-semibold text-foreground">{dispute.case_id}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              Filed on {new Date(dispute.filed_date).toLocaleDateString("en-IN", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </p>
+                          </div>
+                          <Badge variant="secondary">{dispute.status}</Badge>
+                        </div>
+                        
+                        <div className="grid gap-3 mb-4 md:grid-cols-2">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Contract Type</p>
+                            <p className="font-medium">{dispute.contract_type}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Resolution Method</p>
+                            <p className="font-medium capitalize">
+                              {dispute.resolution_type ? dispute.resolution_type.replace('_', ' ') : 'Not specified'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Mediator</p>
+                            <p className="font-medium">{dispute.mediator || 'Not assigned yet'}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Legal Aid</p>
+                            <Badge variant={dispute.legal_aid_eligible ? "default" : "secondary"} className="text-xs">
+                              {dispute.legal_aid_eligible ? "Eligible" : "Not Eligible"}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <Button asChild className="w-full">
+                          <Link to={`/track?caseId=${dispute.case_id}`}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Track Case Progress
+                          </Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               ) : (
                 <Table>
