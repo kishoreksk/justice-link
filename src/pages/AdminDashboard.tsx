@@ -31,16 +31,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
-import {
-  getProfessionals,
-  saveProfessional,
-  updateProfessional,
-  deleteProfessional,
-  type Professional,
-} from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+
+interface Professional {
+  id: string;
+  name: string;
+  type: "mediator" | "arbitrator" | "legal_aid_advocate";
+  email: string;
+  phone: string;
+  specialization: string;
+  experience: number;
+  status: "active" | "inactive";
+  cases_handled?: number;
+}
 
 export default function AdminDashboard() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
@@ -99,8 +104,22 @@ export default function AdminDashboard() {
     loadProfessionals();
   };
 
-  const loadProfessionals = () => {
-    setProfessionals(getProfessionals());
+  const loadProfessionals = async () => {
+    const { data, error } = await supabase
+      .from('professionals')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load professionals.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProfessionals((data || []) as Professional[]);
   };
 
   const resetForm = () => {
@@ -130,9 +149,22 @@ export default function AdminDashboard() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this professional?")) {
-      deleteProfessional(id);
+      const { error } = await supabase
+        .from('professionals')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete professional.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       loadProfessionals();
       toast({
         title: "Professional Deleted",
@@ -141,27 +173,58 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (editingProfessional) {
-      updateProfessional(editingProfessional.id, {
-        ...formData,
-        experience: parseInt(formData.experience),
-      });
+      const { error } = await supabase
+        .from('professionals')
+        .update({
+          name: formData.name,
+          type: formData.type,
+          email: formData.email,
+          phone: formData.phone,
+          specialization: formData.specialization,
+          experience: parseInt(formData.experience),
+          status: formData.status,
+        })
+        .eq('id', editingProfessional.id);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update professional.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Professional Updated",
         description: "The professional details have been updated successfully.",
       });
     } else {
-      const newProfessional: Professional = {
-        id: crypto.randomUUID(),
-        ...formData,
-        experience: parseInt(formData.experience),
-        casesHandled: 0,
-        createdAt: new Date().toISOString(),
-      };
-      saveProfessional(newProfessional);
+      const { error } = await supabase
+        .from('professionals')
+        .insert({
+          name: formData.name,
+          type: formData.type,
+          email: formData.email,
+          phone: formData.phone,
+          specialization: formData.specialization,
+          experience: parseInt(formData.experience),
+          status: formData.status,
+        });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to add professional.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Professional Added",
         description: "New professional has been added successfully.",
