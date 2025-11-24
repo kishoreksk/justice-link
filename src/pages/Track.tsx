@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { getDisputeById, type Dispute } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,51 +10,28 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Search, Clock, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 
-// Mock case data
-const mockCase = {
-  caseId: "ODR/2025/001234",
-  applicant: "Rajesh Kumar",
-  contractType: "Loan Agreement",
-  filedDate: "2025-01-15",
-  status: "In Progress",
-  mediator: "Adv. Priya Sharma",
-  nextHearing: "2025-01-25",
-  updates: [
-    {
-      date: "2025-01-22",
-      title: "Mediator Assigned",
-      description: "Adv. Priya Sharma has been assigned to mediate your dispute.",
-      status: "completed",
-    },
-    {
-      date: "2025-01-20",
-      title: "Legal Aid Approved",
-      description: "Your application for legal aid has been approved by DLSA.",
-      status: "completed",
-    },
-    {
-      date: "2025-01-18",
-      title: "Case Under Review",
-      description: "Your dispute is being reviewed for eligibility and assignment.",
-      status: "completed",
-    },
-    {
-      date: "2025-01-15",
-      title: "Dispute Registered",
-      description: "Your dispute has been successfully registered in the system.",
-      status: "completed",
-    },
-  ],
-};
-
 export default function Track() {
+  const [searchParams] = useSearchParams();
   const [caseId, setCaseId] = useState("");
-  const [showCase, setShowCase] = useState(false);
+  const [caseData, setCaseData] = useState<Dispute | null>(null);
+
+  useEffect(() => {
+    const urlCaseId = searchParams.get("caseId");
+    if (urlCaseId) {
+      setCaseId(urlCaseId);
+      loadCase(urlCaseId);
+    }
+  }, [searchParams]);
+
+  const loadCase = (id: string) => {
+    const dispute = getDisputeById(id);
+    setCaseData(dispute || null);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (caseId.trim()) {
-      setShowCase(true);
+      loadCase(caseId.trim());
     }
   };
 
@@ -94,16 +73,16 @@ export default function Track() {
             </Card>
             
             {/* Case Details */}
-            {showCase && (
+            {caseData && (
               <div className="space-y-6">
                 {/* Case Overview */}
                 <Card>
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle>{mockCase.caseId}</CardTitle>
+                        <CardTitle>{caseData.caseId}</CardTitle>
                         <CardDescription className="mt-1">
-                          Filed on {new Date(mockCase.filedDate).toLocaleDateString('en-IN', { 
+                          Filed on {new Date(caseData.filedDate).toLocaleDateString('en-IN', {
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 
@@ -111,7 +90,7 @@ export default function Track() {
                         </CardDescription>
                       </div>
                       <Badge variant="secondary" className="bg-secondary/20 text-secondary">
-                        {mockCase.status}
+                        {caseData.status}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -119,24 +98,20 @@ export default function Track() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
                         <p className="text-sm text-muted-foreground">Applicant</p>
-                        <p className="font-medium text-foreground">{mockCase.applicant}</p>
+                        <p className="font-medium text-foreground">{caseData.applicant.name}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Contract Type</p>
-                        <p className="font-medium text-foreground">{mockCase.contractType}</p>
+                        <p className="font-medium text-foreground">{caseData.contractType}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Mediator</p>
-                        <p className="font-medium text-foreground">{mockCase.mediator}</p>
+                        <p className="font-medium text-foreground">{caseData.mediator || "Not Assigned"}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Next Hearing</p>
+                        <p className="text-sm text-muted-foreground">Legal Aid Eligible</p>
                         <p className="font-medium text-foreground">
-                          {new Date(mockCase.nextHearing).toLocaleDateString('en-IN', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
+                          {caseData.legalAidEligible ? "Yes" : "No"}
                         </p>
                       </div>
                     </div>
@@ -151,7 +126,7 @@ export default function Track() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-6">
-                      {mockCase.updates.map((update, index) => (
+                      {caseData.updates.map((update, index) => (
                         <div key={index} className="flex gap-4">
                           <div className="flex flex-col items-center">
                             <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
@@ -165,7 +140,7 @@ export default function Track() {
                                 <Clock className="h-5 w-5" />
                               )}
                             </div>
-                            {index < mockCase.updates.length - 1 && (
+                            {index < caseData.updates.length - 1 && (
                               <div className="h-full w-0.5 bg-border" style={{ minHeight: '40px' }} />
                             )}
                           </div>
@@ -211,7 +186,7 @@ export default function Track() {
               </div>
             )}
             
-            {!showCase && (
+            {!caseData && (
               <Card className="border-dashed">
                 <CardContent className="py-12 text-center">
                   <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />

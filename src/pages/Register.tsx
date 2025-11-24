@@ -1,13 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { saveDispute, generateCaseId } from "@/lib/storage";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, FileText, UserCheck, Scale } from "lucide-react";
 
 const contractTypes = [
@@ -28,6 +30,8 @@ const steps = [
 
 export default function Register() {
   const [currentStep, setCurrentStep] = useState(1);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     contractType: "",
     issueDescription: "",
@@ -35,11 +39,13 @@ export default function Register() {
     applicantName: "",
     applicantContact: "",
     applicantEmail: "",
+    applicantAddress: "",
     respondentName: "",
     respondentContact: "",
+    respondentEmail: "",
+    respondentAddress: "",
     annualIncome: "",
   });
-  const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -60,19 +66,51 @@ export default function Register() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check eligibility for legal aid (simplified check)
+    const caseId = generateCaseId();
     const income = parseInt(formData.annualIncome);
-    const isEligible = income < 500000; // ₹5 lakhs threshold (example)
+    const legalAidEligible = income < 300000;
+    
+    const dispute = {
+      id: crypto.randomUUID(),
+      caseId,
+      applicant: {
+        name: formData.applicantName,
+        phone: formData.applicantContact,
+        email: formData.applicantEmail,
+        address: formData.applicantAddress || "",
+        income: formData.annualIncome,
+      },
+      respondent: {
+        name: formData.respondentName,
+        phone: formData.respondentContact || "",
+        email: formData.respondentEmail || "",
+        address: formData.respondentAddress || "",
+      },
+      contractType: formData.contractType,
+      disputeDescription: formData.issueDescription,
+      filedDate: new Date().toISOString(),
+      status: "Pending Review",
+      legalAidEligible,
+      updates: [
+        {
+          date: new Date().toISOString(),
+          title: "Dispute Registered",
+          description: "Your dispute has been successfully registered in the system.",
+          status: "completed",
+        },
+      ],
+    };
+
+    saveDispute(dispute);
     
     toast({
       title: "Dispute Registered Successfully!",
-      description: isEligible 
-        ? "You qualify for free legal aid. A mediator will be assigned shortly."
-        : "Your case has been registered. Mediation will proceed shortly.",
+      description: `Your case ID is ${caseId}. ${legalAidEligible ? "You qualify for free legal aid." : ""}`,
     });
-    
-    // In a real app, this would send data to backend
-    console.log("Form submitted:", formData, "Eligible:", isEligible);
+
+    setTimeout(() => {
+      navigate(`/track?caseId=${caseId}`);
+    }, 2000);
   };
 
   return (

@@ -24,6 +24,12 @@ export const Navbar = () => {
             <Link to="/track" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Track Case
             </Link>
+            <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              Dashboard
+            </Link>
+            <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              Professionals
+            </Link>
             <Link to="/about" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               About
             </Link>
