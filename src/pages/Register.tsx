@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { saveDispute, generateCaseId } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,8 @@ const steps = [
 
 export default function Register() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -48,6 +50,33 @@ export default function Register() {
     annualIncome: "",
   });
 
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to register a dispute.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    setUserId(user.id);
+    setLoading(false);
+  };
+
+  const generateCaseId = () => {
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    return `ODR/${year}/${random}`;
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -64,56 +93,89 @@ export default function Register() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "User not authenticated.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
     
     const caseId = generateCaseId();
     const income = parseInt(formData.annualIncome);
-    const legalAidEligible = income < 300000;
-    
-    const dispute = {
-      id: crypto.randomUUID(),
-      caseId,
-      applicant: {
-        name: formData.applicantName,
-        phone: formData.applicantContact,
-        email: formData.applicantEmail,
-        address: formData.applicantAddress || "",
-        income: formData.annualIncome,
-      },
-      respondent: {
-        name: formData.respondentName,
-        phone: formData.respondentContact || "",
-        email: formData.respondentEmail || "",
-        address: formData.respondentAddress || "",
-      },
-      contractType: formData.contractType,
-      resolutionType: formData.resolutionType as 'arbitration' | 'mediation' | 'negotiation' | 'conciliation' | 'legal_aid',
-      disputeDescription: formData.issueDescription,
-      filedDate: new Date().toISOString(),
-      status: "Pending Review",
-      legalAidEligible,
-      updates: [
-        {
-          date: new Date().toISOString(),
-          title: "Dispute Registered",
-          description: "Your dispute has been successfully registered in the system.",
-          status: "completed",
-        },
-      ],
-    };
+    const legalAidEligible = income < 500000;
 
-    saveDispute(dispute);
-    
+    const { data: dispute, error: disputeError } = await supabase
+      .from('disputes')
+      .insert({
+        user_id: userId,
+        case_id: caseId,
+        applicant_name: formData.applicantName,
+        applicant_phone: formData.applicantContact,
+        applicant_email: formData.applicantEmail,
+        applicant_address: formData.applicantAddress || null,
+        applicant_income: formData.annualIncome,
+        respondent_name: formData.respondentName,
+        respondent_phone: formData.respondentContact || null,
+        respondent_email: formData.respondentEmail || null,
+        respondent_address: formData.respondentAddress || null,
+        contract_type: formData.contractType,
+        resolution_type: formData.resolutionType,
+        dispute_description: formData.issueDescription,
+        status: "Pending Review",
+        legal_aid_eligible: legalAidEligible,
+      })
+      .select()
+      .single();
+
+    if (disputeError) {
+      toast({
+        title: "Error",
+        description: "Failed to register dispute. Please try again.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Create initial case update
+    await supabase
+      .from('case_updates')
+      .insert({
+        dispute_id: dispute.id,
+        title: "Dispute Registered",
+        description: "Your dispute has been successfully registered in the system.",
+        status: "completed",
+      });
+
     toast({
       title: "Dispute Registered Successfully!",
       description: `Your case ID is ${caseId}. ${legalAidEligible ? "You qualify for free legal aid." : ""}`,
     });
 
+    setLoading(false);
     setTimeout(() => {
       navigate(`/track?caseId=${caseId}`);
-    }, 2000);
+    }, 1500);
   };
+
+  if (loading && !userId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex-1 bg-background py-12 flex items-center justify-center">
+          <div>Loading...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -384,8 +446,8 @@ export default function Register() {
                         Next
                       </Button>
                     ) : (
-                      <Button type="submit" variant="success">
-                        Submit Dispute
+                      <Button type="submit" variant="success" disabled={loading}>
+                        {loading ? "Submitting..." : "Submit Dispute"}
                       </Button>
                     )}
                   </div>
