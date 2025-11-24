@@ -13,11 +13,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, Clock, CheckCircle2, AlertCircle, TrendingUp } from "lucide-react";
-import { getDisputes, type Dispute } from "@/lib/storage";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FileText, Clock, CheckCircle2, AlertCircle, UserPlus } from "lucide-react";
+import { getDisputes, updateDispute, getProfessionals, getProfessionalById, type Dispute } from "@/lib/storage";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     loadDisputes();
@@ -25,6 +45,40 @@ export default function Dashboard() {
 
   const loadDisputes = () => {
     setDisputes(getDisputes());
+  };
+
+  const handleAssignClick = (dispute: Dispute) => {
+    setSelectedDispute(dispute);
+    setSelectedProfessionalId(dispute.assignedProfessionalId || "");
+    setIsAssignDialogOpen(true);
+  };
+
+  const handleAssignProfessional = () => {
+    if (!selectedDispute || !selectedProfessionalId) return;
+
+    const professional = getProfessionalById(selectedProfessionalId);
+    if (!professional) return;
+
+    updateDispute(selectedDispute.id, {
+      assignedProfessionalId: selectedProfessionalId,
+      mediator: professional.name,
+      status: "In Progress - Professional Assigned",
+    });
+
+    toast({
+      title: "Professional Assigned",
+      description: `${professional.name} has been assigned to case ${selectedDispute.caseId}`,
+    });
+
+    loadDisputes();
+    setIsAssignDialogOpen(false);
+    setSelectedDispute(null);
+    setSelectedProfessionalId("");
+  };
+
+  const getAssignedProfessional = (dispute: Dispute) => {
+    if (!dispute.assignedProfessionalId) return null;
+    return getProfessionalById(dispute.assignedProfessionalId);
   };
 
   const getStatusIcon = (status: string) => {
@@ -131,41 +185,67 @@ export default function Dashboard() {
                       <TableHead>Contract Type</TableHead>
                       <TableHead>Filed Date</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Assigned To</TableHead>
                       <TableHead>Legal Aid</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {disputes.map((dispute) => (
-                      <TableRow key={dispute.id}>
-                        <TableCell className="font-medium">{dispute.caseId}</TableCell>
-                        <TableCell>{dispute.applicant.name}</TableCell>
-                        <TableCell>{dispute.contractType}</TableCell>
-                        <TableCell>
-                          {new Date(dispute.filedDate).toLocaleDateString("en-IN", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(dispute.status)}
-                            <span>{dispute.status}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={dispute.legalAidEligible ? "default" : "secondary"}>
-                            {dispute.legalAidEligible ? "Eligible" : "Not Eligible"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="outline" size="sm" asChild>
-                            <Link to={`/track?caseId=${dispute.caseId}`}>View Details</Link>
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {disputes.map((dispute) => {
+                      const assignedProfessional = getAssignedProfessional(dispute);
+                      return (
+                        <TableRow key={dispute.id}>
+                          <TableCell className="font-medium">{dispute.caseId}</TableCell>
+                          <TableCell>{dispute.applicant.name}</TableCell>
+                          <TableCell>{dispute.contractType}</TableCell>
+                          <TableCell>
+                            {new Date(dispute.filedDate).toLocaleDateString("en-IN", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(dispute.status)}
+                              <span className="text-sm">{dispute.status}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {assignedProfessional ? (
+                              <div className="text-sm">
+                                <div className="font-medium">{assignedProfessional.name}</div>
+                                <div className="text-muted-foreground capitalize">
+                                  {assignedProfessional.type.replace("_", " ")}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">Not Assigned</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={dispute.legalAidEligible ? "default" : "secondary"}>
+                              {dispute.legalAidEligible ? "Eligible" : "Not Eligible"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleAssignClick(dispute)}
+                              >
+                                <UserPlus className="mr-1 h-3 w-3" />
+                                Assign
+                              </Button>
+                              <Button variant="outline" size="sm" asChild>
+                                <Link to={`/track?caseId=${dispute.caseId}`}>View</Link>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               )}
@@ -173,6 +253,87 @@ export default function Dashboard() {
           </Card>
         </div>
       </main>
+
+      {/* Assign Professional Dialog */}
+      <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Professional</DialogTitle>
+            <DialogDescription>
+              Select a professional to assign to case {selectedDispute?.caseId}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Professional</label>
+              <Select
+                value={selectedProfessionalId}
+                onValueChange={setSelectedProfessionalId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a professional..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {getProfessionals()
+                    .filter((p) => p.status === "active")
+                    .map((professional) => (
+                      <SelectItem key={professional.id} value={professional.id}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{professional.name}</span>
+                          <span className="text-muted-foreground text-xs">
+                            ({professional.type.replace("_", " ")})
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedProfessionalId && getProfessionalById(selectedProfessionalId) && (
+              <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+                <h4 className="font-semibold text-sm">Professional Details</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Specialization:</span>
+                    <p className="font-medium">
+                      {getProfessionalById(selectedProfessionalId)?.specialization}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Experience:</span>
+                    <p className="font-medium">
+                      {getProfessionalById(selectedProfessionalId)?.experience} years
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Email:</span>
+                    <p className="font-medium">
+                      {getProfessionalById(selectedProfessionalId)?.email}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Phone:</span>
+                    <p className="font-medium">
+                      {getProfessionalById(selectedProfessionalId)?.phone}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAssignDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAssignProfessional} disabled={!selectedProfessionalId}>
+              Assign Professional
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

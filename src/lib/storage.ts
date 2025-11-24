@@ -21,6 +21,7 @@ export interface Dispute {
   filedDate: string;
   status: string;
   mediator?: string;
+  assignedProfessionalId?: string;
   nextHearing?: string;
   legalAidEligible: boolean;
   updates: Array<{
