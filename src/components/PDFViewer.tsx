@@ -114,11 +114,18 @@ export const PDFViewer = ({ disputeId, pdfUrl }: PDFViewerProps) => {
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : viewUrl ? (
-          <iframe
-            src={viewUrl}
+          <object
+            data={`${viewUrl}#toolbar=0`}
+            type="application/pdf"
             className="w-full h-[600px] border rounded"
             title="Award Document"
-          />
+          >
+            <iframe
+              src={`${viewUrl}#toolbar=0`}
+              className="w-full h-[600px] border rounded"
+              title="Award Document"
+            />
+          </object>
         ) : (
           <Button onClick={loadPDF}>Load PDF</Button>
         )}
