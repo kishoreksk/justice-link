@@ -102,7 +102,7 @@ export default function Demo() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <div className="border-b-2 border-border mb-8">
+          <div className="sticky top-16 z-50 bg-background border-b-2 border-border mb-8 pb-0">
             <TabsList className="h-auto bg-transparent p-0 w-full justify-start gap-0">
               <TabsTrigger 
                 value="overview" 
