@@ -93,12 +93,6 @@ export default function Demo() {
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-12 text-center animate-fade-in">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Badge variant="secondary" className="gap-1 animate-scale-in">
-              <Lock className="h-3 w-3" />
-              Admin Only
-            </Badge>
-          </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-4">
             System Demo & Walkthrough
           </h1>
@@ -108,23 +102,25 @@ export default function Demo() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-card/50 backdrop-blur-sm p-1">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="user-flow" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
-              User Flow
-            </TabsTrigger>
-            <TabsTrigger value="admin-flow" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground transition-all">
-              Admin Flow
-            </TabsTrigger>
-            <TabsTrigger value="professional-flow" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-all">
-              Professional Flow
-            </TabsTrigger>
-            <TabsTrigger value="features" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
-              Key Features
-            </TabsTrigger>
-          </TabsList>
+          <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm pb-4 -mx-4 px-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-card/50 backdrop-blur-sm p-1">
+              <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="user-flow" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                User Flow
+              </TabsTrigger>
+              <TabsTrigger value="admin-flow" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground transition-all">
+                Admin Flow
+              </TabsTrigger>
+              <TabsTrigger value="professional-flow" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-all">
+                Professional Flow
+              </TabsTrigger>
+              <TabsTrigger value="features" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                Key Features
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6 animate-fade-in">
