@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { CaseMeetingManager } from "@/components/CaseMeetingManager";
+import { PDFViewer } from "@/components/PDFViewer";
 
 interface Dispute {
   id: string;
@@ -27,6 +28,7 @@ interface Dispute {
   meeting_link?: string;
   document_type?: string;
   final_document?: any;
+  award_pdf_url?: string;
 }
 
 export default function ProfessionalDashboard() {
@@ -295,10 +297,15 @@ export default function ProfessionalDashboard() {
                           Document Issued
                         </p>
                         <Badge variant="outline">{dispute.document_type}</Badge>
+                        {dispute.award_pdf_url && (
+                          <div className="mt-3">
+                            <PDFViewer disputeId={dispute.id} pdfUrl={dispute.award_pdf_url} />
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    <CaseMeetingManager 
+                    <CaseMeetingManager
                       dispute={dispute}
                       onUpdate={() => loadAssignedCases(professionalEmail)}
                     />

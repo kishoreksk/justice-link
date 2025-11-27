@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,9 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Video, FileText } from "lucide-react";
+import { Calendar, Video, FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { generateAwardPDF } from "@/lib/pdfGenerator";
 
 interface Dispute {
   id: string;
@@ -37,6 +38,7 @@ interface Dispute {
   applicant_email: string;
   respondent_name: string;
   respondent_email: string;
+  assigned_professional_id?: string;
 }
 
 interface CaseMeetingManagerProps {
@@ -47,7 +49,36 @@ interface CaseMeetingManagerProps {
 export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProps) => {
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [isDocumentOpen, setIsDocumentOpen] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [meetingsCount, setMeetingsCount] = useState(0);
+  const [submittedDocuments, setSubmittedDocuments] = useState<any[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadCaseData();
+  }, [dispute.id]);
+
+  const loadCaseData = async () => {
+    // Load meetings count
+    const { data: meetings, error: meetingsError } = await supabase
+      .from('dispute_meetings')
+      .select('*')
+      .eq('dispute_id', dispute.id);
+    
+    if (!meetingsError && meetings) {
+      setMeetingsCount(meetings.length);
+    }
+
+    // Load submitted documents
+    const { data: docs, error: docsError } = await supabase
+      .from('dispute_documents')
+      .select('*')
+      .eq('dispute_id', dispute.id);
+    
+    if (!docsError && docs) {
+      setSubmittedDocuments(docs);
+    }
+  };
 
   const [meetingData, setMeetingData] = useState({
     meeting_date: dispute.meeting_date || "",
@@ -60,6 +91,10 @@ export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProp
     outcome: "",
     terms: "",
     remarks: "",
+    applicant_advocate_name: "",
+    applicant_advocate_phone: "",
+    respondent_advocate_name: "",
+    respondent_advocate_phone: "",
   });
 
   const handleScheduleMeeting = async (e: React.FormEvent) => {
@@ -82,6 +117,13 @@ export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProp
       });
       return;
     }
+
+    // Save meeting to dispute_meetings table
+    await supabase.from("dispute_meetings").insert({
+      dispute_id: dispute.id,
+      meeting_date: meetingData.meeting_date,
+      meeting_link: meetingData.meeting_link,
+    });
 
     // Create notification for user
     await supabase.from("notifications").insert({
@@ -122,69 +164,136 @@ export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProp
 
   const handleIssueDocument = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsGeneratingPDF(true);
 
-    const finalDocument = {
-      document_type: documentData.document_type,
-      summary: documentData.summary,
-      outcome: documentData.outcome,
-      terms: documentData.terms,
-      remarks: documentData.remarks,
-      issued_date: new Date().toISOString(),
-    };
+    try {
+      // Fetch professional details
+      const { data: professionalData } = await supabase
+        .from('professionals')
+        .select('name')
+        .eq('id', dispute.assigned_professional_id)
+        .single();
 
-    const { error } = await supabase
-      .from("disputes")
-      .update({
-        document_type: documentData.document_type,
-        final_document: finalDocument,
-        status: documentData.document_type === "arbitration_award" 
-          ? "Arbitration Award Issued" 
-          : "Mediation Report Issued",
-      })
-      .eq("id", dispute.id);
+      const mediatorName = professionalData?.name || 'Unknown Professional';
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to issue document.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Create notification for user
-    await supabase.from("notifications").insert({
-      user_id: dispute.user_id,
-      dispute_id: dispute.id,
-      type: "document_issued",
-      title: "Final Document Issued",
-      message: `${documentData.document_type === "arbitration_award" ? "Arbitration Award" : "Mediation Report"} has been issued for case ${dispute.case_id}`,
-    });
-
-    // Send email notifications to both parties
-    const { error: emailError } = await supabase.functions.invoke('send-dispute-notification', {
-      body: {
-        type: 'award_finalized',
+      // Generate PDF
+      const pdf = generateAwardPDF({
         caseId: dispute.case_id,
         applicantName: dispute.applicant_name,
-        applicantEmail: dispute.applicant_email,
         respondentName: dispute.respondent_name,
-        respondentEmail: dispute.respondent_email,
-        resolutionMethod: dispute.resolution_type,
+        resolutionType: dispute.resolution_type,
+        documentType: documentData.document_type === 'arbitration_award' 
+          ? 'ARBITRATION AWARD' 
+          : 'MEDIATION REPORT',
+        mediatorName: mediatorName,
+        meetingsCount: meetingsCount,
+        finalDate: new Date().toLocaleDateString('en-IN'),
+        documentsSubmitted: submittedDocuments.map(doc => ({
+          submittedBy: doc.submitted_by,
+          documentName: doc.document_name,
+          description: doc.document_description
+        })),
+        applicantAdvocate: documentData.applicant_advocate_name ? {
+          name: documentData.applicant_advocate_name,
+          phone: documentData.applicant_advocate_phone
+        } : undefined,
+        respondentAdvocate: documentData.respondent_advocate_name ? {
+          name: documentData.respondent_advocate_name,
+          phone: documentData.respondent_advocate_phone
+        } : undefined,
+        resolutionSummary: documentData.summary,
+        outcomes: documentData.outcome,
+        termsAndConditions: documentData.terms,
+        professionalSignature: mediatorName
+      });
+
+      // Convert PDF to blob
+      const pdfBlob = pdf.output('blob');
+      const fileName = `${dispute.id}/award-${Date.now()}.pdf`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('case-documents')
+        .upload(fileName, pdfBlob, {
+          contentType: 'application/pdf',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const finalDocument = {
+        document_type: documentData.document_type,
+        summary: documentData.summary,
+        outcome: documentData.outcome,
+        terms: documentData.terms,
+        remarks: documentData.remarks,
+        issued_date: new Date().toISOString(),
+      };
+
+      // Update dispute with PDF URL and advocate details
+      const { error } = await supabase
+        .from("disputes")
+        .update({
+          document_type: documentData.document_type,
+          final_document: finalDocument,
+          award_pdf_url: fileName,
+          applicant_advocate_name: documentData.applicant_advocate_name || null,
+          applicant_advocate_phone: documentData.applicant_advocate_phone || null,
+          respondent_advocate_name: documentData.respondent_advocate_name || null,
+          respondent_advocate_phone: documentData.respondent_advocate_phone || null,
+          status: documentData.document_type === "arbitration_award" 
+            ? "Arbitration Award Issued" 
+            : "Mediation Report Issued",
+        })
+        .eq("id", dispute.id);
+
+      if (error) {
+        throw error;
       }
-    });
 
-    if (emailError) {
-      console.error('Failed to send email notifications:', emailError);
+      // Create notification for user
+      await supabase.from("notifications").insert({
+        user_id: dispute.user_id,
+        dispute_id: dispute.id,
+        type: "document_issued",
+        title: "Final Document Issued",
+        message: `${documentData.document_type === "arbitration_award" ? "Arbitration Award" : "Mediation Report"} has been issued for case ${dispute.case_id}`,
+      });
+
+      // Send email notifications to both parties
+      const { error: emailError } = await supabase.functions.invoke('send-dispute-notification', {
+        body: {
+          type: 'award_finalized',
+          caseId: dispute.case_id,
+          applicantName: dispute.applicant_name,
+          applicantEmail: dispute.applicant_email,
+          respondentName: dispute.respondent_name,
+          respondentEmail: dispute.respondent_email,
+          resolutionMethod: dispute.resolution_type,
+        }
+      });
+
+      if (emailError) {
+        console.error('Failed to send email notifications:', emailError);
+      }
+
+      toast({
+        title: "Document Issued",
+        description: "PDF award document generated and parties notified via email.",
+      });
+
+      setIsDocumentOpen(false);
+      onUpdate();
+    } catch (error: any) {
+      console.error('Error issuing document:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to issue document.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPDF(false);
     }
-
-    toast({
-      title: "Document Issued",
-      description: "The final document has been recorded and parties notified via email.",
-    });
-
-    setIsDocumentOpen(false);
-    onUpdate();
   };
 
   return (
@@ -336,10 +445,49 @@ export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProp
                   }
                 />
               </div>
+
+              <div className="grid gap-2">
+                <Label>Applicant's Advocate (Optional)</Label>
+                <Input
+                  placeholder="Advocate Name"
+                  value={documentData.applicant_advocate_name}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, applicant_advocate_name: e.target.value })
+                  }
+                />
+                <Input
+                  placeholder="Advocate Phone"
+                  value={documentData.applicant_advocate_phone}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, applicant_advocate_phone: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Respondent's Advocate (Optional)</Label>
+                <Input
+                  placeholder="Advocate Name"
+                  value={documentData.respondent_advocate_name}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, respondent_advocate_name: e.target.value })
+                  }
+                />
+                <Input
+                  placeholder="Advocate Phone"
+                  value={documentData.respondent_advocate_phone}
+                  onChange={(e) =>
+                    setDocumentData({ ...documentData, respondent_advocate_phone: e.target.value })
+                  }
+                />
+              </div>
             </div>
 
             <DialogFooter>
-              <Button type="submit">Issue Document</Button>
+              <Button type="submit" disabled={isGeneratingPDF}>
+                {isGeneratingPDF && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isGeneratingPDF ? "Generating PDF..." : "Issue Document"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

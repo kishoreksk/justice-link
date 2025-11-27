@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Search, Clock, CheckCircle2, AlertCircle, FileText, Video, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PDFViewer } from "@/components/PDFViewer";
 
 interface Dispute {
   id: string;
@@ -26,6 +27,7 @@ interface Dispute {
   meeting_link?: string;
   document_type?: string;
   final_document?: any;
+  award_pdf_url?: string;
 }
 
 interface CaseUpdate {
@@ -358,11 +360,16 @@ export default function Track() {
                                       <p className="text-xs font-medium text-muted-foreground uppercase">Terms</p>
                                       <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">{caseData.final_document.terms}</p>
                                     </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                                   )}
+                                 </div>
+                                 {caseData.award_pdf_url && (
+                                   <div className="mt-4">
+                                     <PDFViewer disputeId={caseData.id} pdfUrl={caseData.award_pdf_url} />
+                                   </div>
+                                 )}
+                               </div>
+                             </div>
+                           </div>
                         </div>
                       )}
 

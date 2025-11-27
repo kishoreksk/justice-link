@@ -52,14 +52,87 @@ export type Database = {
           },
         ]
       }
+      dispute_documents: {
+        Row: {
+          dispute_id: string
+          document_description: string | null
+          document_name: string
+          id: string
+          submitted_at: string | null
+          submitted_by: string
+        }
+        Insert: {
+          dispute_id: string
+          document_description?: string | null
+          document_name: string
+          id?: string
+          submitted_at?: string | null
+          submitted_by: string
+        }
+        Update: {
+          dispute_id?: string
+          document_description?: string | null
+          document_name?: string
+          id?: string
+          submitted_at?: string | null
+          submitted_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_documents_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_meetings: {
+        Row: {
+          created_at: string | null
+          dispute_id: string
+          id: string
+          meeting_date: string
+          meeting_link: string | null
+          notes: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dispute_id: string
+          id?: string
+          meeting_date: string
+          meeting_link?: string | null
+          notes?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dispute_id?: string
+          id?: string
+          meeting_date?: string
+          meeting_link?: string | null
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_meetings_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disputes: {
         Row: {
           applicant_address: string | null
+          applicant_advocate_name: string | null
+          applicant_advocate_phone: string | null
           applicant_email: string
           applicant_income: string | null
           applicant_name: string
           applicant_phone: string
           assigned_professional_id: string | null
+          award_pdf_url: string | null
           case_id: string
           contract_type: string
           created_at: string
@@ -75,6 +148,8 @@ export type Database = {
           next_hearing: string | null
           resolution_type: string
           respondent_address: string | null
+          respondent_advocate_name: string | null
+          respondent_advocate_phone: string | null
           respondent_email: string | null
           respondent_name: string
           respondent_phone: string | null
@@ -84,11 +159,14 @@ export type Database = {
         }
         Insert: {
           applicant_address?: string | null
+          applicant_advocate_name?: string | null
+          applicant_advocate_phone?: string | null
           applicant_email: string
           applicant_income?: string | null
           applicant_name: string
           applicant_phone: string
           assigned_professional_id?: string | null
+          award_pdf_url?: string | null
           case_id: string
           contract_type: string
           created_at?: string
@@ -104,6 +182,8 @@ export type Database = {
           next_hearing?: string | null
           resolution_type: string
           respondent_address?: string | null
+          respondent_advocate_name?: string | null
+          respondent_advocate_phone?: string | null
           respondent_email?: string | null
           respondent_name: string
           respondent_phone?: string | null
@@ -113,11 +193,14 @@ export type Database = {
         }
         Update: {
           applicant_address?: string | null
+          applicant_advocate_name?: string | null
+          applicant_advocate_phone?: string | null
           applicant_email?: string
           applicant_income?: string | null
           applicant_name?: string
           applicant_phone?: string
           assigned_professional_id?: string | null
+          award_pdf_url?: string | null
           case_id?: string
           contract_type?: string
           created_at?: string
@@ -133,6 +216,8 @@ export type Database = {
           next_hearing?: string | null
           resolution_type?: string
           respondent_address?: string | null
+          respondent_advocate_name?: string | null
+          respondent_advocate_phone?: string | null
           respondent_email?: string | null
           respondent_name?: string
           respondent_phone?: string | null
