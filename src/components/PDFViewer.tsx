@@ -28,11 +28,12 @@ export const PDFViewer = ({ disputeId, pdfUrl }: PDFViewerProps) => {
     try {
       const { data, error } = await supabase.storage
         .from('case-documents')
-        .createSignedUrl(pdfUrl, 3600); // 1 hour expiry
+        .download(pdfUrl);
 
       if (error) throw error;
       
-      setViewUrl(data.signedUrl);
+      const blobUrl = URL.createObjectURL(data);
+      setViewUrl(blobUrl);
     } catch (error: any) {
       console.error('Error loading PDF:', error);
       toast({
