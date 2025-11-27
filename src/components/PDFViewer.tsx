@@ -23,6 +23,7 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
+  const [scale, setScale] = useState<number>(1.0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -106,6 +107,18 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
     changePage(1);
   };
 
+  const zoomIn = () => {
+    setScale(prev => Math.min(prev + 0.2, 2.5));
+  };
+
+  const zoomOut = () => {
+    setScale(prev => Math.max(prev - 0.2, 0.5));
+  };
+
+  const resetZoom = () => {
+    setScale(1.0);
+  };
+
   if (!pdfUrl) {
     return (
       <Card>
@@ -167,7 +180,7 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
           </div>
         ) : viewUrl ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -177,7 +190,7 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-sm">
+                <span className="text-sm whitespace-nowrap">
                   Page {pageNumber} of {numPages}
                 </span>
                 <Button
@@ -189,16 +202,47 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open(viewUrl, '_blank')}
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Open in New Tab
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={zoomOut}
+                  disabled={scale <= 0.5}
+                  title="Zoom Out"
+                >
+                  -
+                </Button>
+                <span className="text-sm whitespace-nowrap min-w-[60px] text-center">
+                  {Math.round(scale * 100)}%
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={zoomIn}
+                  disabled={scale >= 2.5}
+                  title="Zoom In"
+                >
+                  +
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetZoom}
+                  title="Reset Zoom"
+                >
+                  Reset
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(viewUrl, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Open in New Tab</span>
+                </Button>
+              </div>
             </div>
-            <div className={`border rounded overflow-auto ${isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-[600px]'} flex items-center justify-center bg-muted/20`}>
+            <div className={`border rounded overflow-auto ${isFullscreen ? 'h-[calc(100vh-240px)]' : 'h-[500px] sm:h-[600px]'} flex items-center justify-center bg-muted/20`}>
               <Document
                 file={viewUrl}
                 onLoadSuccess={onDocumentLoadSuccess}
@@ -218,7 +262,7 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
               >
                 <Page
                   pageNumber={pageNumber}
-                  width={isFullscreen ? window.innerWidth - 100 : 800}
+                  scale={scale}
                   renderTextLayer={true}
                   renderAnnotationLayer={true}
                 />
