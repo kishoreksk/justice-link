@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, Loader2, Maximize2, Minimize2, X } from 'lucide-react';
+import { Download, FileText, Loader2, Maximize2, Minimize2, X, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface PDFViewerProps {
@@ -141,18 +141,23 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : viewUrl ? (
-          <object
-            data={`${viewUrl}#toolbar=0`}
-            type="application/pdf"
-            className={`w-full border rounded ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[600px]'}`}
-            title="Award Document"
-          >
+          <div className="space-y-3">
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(viewUrl, '_blank')}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open in New Tab
+              </Button>
+            </div>
             <iframe
-              src={`${viewUrl}#toolbar=0`}
-              className={`w-full border rounded ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[600px]'}`}
+              src={viewUrl}
+              className={`w-full border rounded ${isFullscreen ? 'h-[calc(100vh-160px)]' : 'h-[600px]'}`}
               title="Award Document"
             />
-          </object>
+          </div>
         ) : (
           <Button onClick={loadPDF}>Load PDF</Button>
         )}
