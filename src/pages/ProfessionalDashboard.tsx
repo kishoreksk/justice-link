@@ -17,6 +17,7 @@ interface Dispute {
   applicant_email: string;
   applicant_phone: string;
   respondent_name: string;
+  respondent_email: string;
   contract_type: string;
   resolution_type: string;
   dispute_description: string;
