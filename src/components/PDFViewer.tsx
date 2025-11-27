@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, Loader2, Maximize2, Minimize2, X, ExternalLink } from 'lucide-react';
+import { Download, FileText, Loader2, Maximize2, Minimize2, X, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PDFViewerProps {
   disputeId: string;
@@ -15,6 +21,8 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
   const [loading, setLoading] = useState(false);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState<number>(1);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -81,6 +89,23 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
     }
   };
 
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+    setPageNumber(1);
+  };
+
+  const changePage = (offset: number) => {
+    setPageNumber(prevPageNumber => prevPageNumber + offset);
+  };
+
+  const previousPage = () => {
+    changePage(-1);
+  };
+
+  const nextPage = () => {
+    changePage(1);
+  };
+
   if (!pdfUrl) {
     return (
       <Card>
@@ -142,7 +167,28 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
           </div>
         ) : viewUrl ? (
           <div className="space-y-3">
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={previousPage}
+                  disabled={pageNumber <= 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm">
+                  Page {pageNumber} of {numPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={nextPage}
+                  disabled={pageNumber >= numPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
               <Button
                 variant="outline"
                 size="sm"
@@ -152,11 +198,32 @@ export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
                 Open in New Tab
               </Button>
             </div>
-            <iframe
-              src={viewUrl}
-              className={`w-full border rounded ${isFullscreen ? 'h-[calc(100vh-160px)]' : 'h-[600px]'}`}
-              title="Award Document"
-            />
+            <div className={`border rounded overflow-auto ${isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-[600px]'} flex items-center justify-center bg-muted/20`}>
+              <Document
+                file={viewUrl}
+                onLoadSuccess={onDocumentLoadSuccess}
+                loading={
+                  <div className="flex items-center justify-center h-96">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                }
+                error={
+                  <div className="flex flex-col items-center justify-center h-96 gap-4">
+                    <p className="text-muted-foreground">Failed to load PDF</p>
+                    <Button onClick={() => window.open(viewUrl, '_blank')}>
+                      Open in New Tab
+                    </Button>
+                  </div>
+                }
+              >
+                <Page
+                  pageNumber={pageNumber}
+                  width={isFullscreen ? window.innerWidth - 100 : 800}
+                  renderTextLayer={true}
+                  renderAnnotationLayer={true}
+                />
+              </Document>
+            </div>
           </div>
         ) : (
           <Button onClick={loadPDF}>Load PDF</Button>
