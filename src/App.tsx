@@ -9,6 +9,7 @@ import Track from "./pages/Track";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import RoleManagement from "./pages/RoleManagement";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/roles" element={<RoleManagement />} />
+          <Route path="/professional" element={<ProfessionalDashboard />} />
           <Route path="/about" element={<About />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
