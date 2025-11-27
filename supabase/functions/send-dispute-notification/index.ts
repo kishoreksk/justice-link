@@ -202,32 +202,40 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }
 
-    // Send email to applicant
-    const applicantEmailResult = await resend.emails.send({
-      from: "eNyaya Resolve <onboarding@resend.dev>",
-      to: [applicantEmail],
-      subject: subject,
-      html: htmlContent,
-    });
+    let applicantEmailResult = null;
+    let respondentEmailResult = null;
 
-    console.log("Applicant email sent:", applicantEmailResult);
+    // Only send to applicant email if it exists
+    if (applicantEmail) {
+      applicantEmailResult = await resend.emails.send({
+        from: "eNyaya Resolve <noreply@yourdomain.com>", // CHANGE THIS to your verified domain
+        to: applicantEmail,
+        subject: subject,
+        html: htmlContent,
+      });
+      console.log("Applicant email sent:", applicantEmailResult);
+    }
 
-    // Send email to respondent
-    const respondentEmailResult = await resend.emails.send({
-      from: "eNyaya Resolve <onboarding@resend.dev>",
-      to: [respondentEmail],
-      subject: subject,
-      html: htmlContent,
-    });
-
-    console.log("Respondent email sent:", respondentEmailResult);
+    // Only send to respondent email if it exists and add delay to avoid rate limiting
+    if (respondentEmail) {
+      // Add delay to avoid rate limit (max 2 requests per second)
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      respondentEmailResult = await resend.emails.send({
+        from: "eNyaya Resolve <noreply@yourdomain.com>", // CHANGE THIS to your verified domain
+        to: respondentEmail,
+        subject: subject,
+        html: htmlContent,
+      });
+      console.log("Respondent email sent:", respondentEmailResult);
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: "Notifications sent successfully",
-        applicantEmailId: applicantEmailResult.data?.id,
-        respondentEmailId: respondentEmailResult.data?.id
+        applicantEmailId: applicantEmailResult?.data?.id,
+        respondentEmailId: respondentEmailResult?.data?.id
       }),
       {
         status: 200,
