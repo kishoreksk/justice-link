@@ -123,7 +123,7 @@ export default function Register() {
         applicant_income: formData.annualIncome,
         respondent_name: formData.respondentName,
         respondent_phone: formData.respondentContact || null,
-        respondent_email: formData.respondentEmail || null,
+        respondent_email: formData.respondentEmail,
         respondent_address: formData.respondentAddress || null,
         contract_type: formData.contractType,
         resolution_type: formData.resolutionType,
@@ -363,14 +363,27 @@ export default function Register() {
                           />
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label htmlFor="respondentContact">Contact Number (if known)</Label>
-                          <Input
-                            id="respondentContact"
-                            type="tel"
-                            value={formData.respondentContact}
-                            onChange={(e) => handleInputChange("respondentContact", e.target.value)}
-                          />
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="respondentContact">Contact Number (if known)</Label>
+                            <Input
+                              id="respondentContact"
+                              type="tel"
+                              value={formData.respondentContact}
+                              onChange={(e) => handleInputChange("respondentContact", e.target.value)}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="respondentEmail">Email Address *</Label>
+                            <Input
+                              id="respondentEmail"
+                              type="email"
+                              value={formData.respondentEmail}
+                              onChange={(e) => handleInputChange("respondentEmail", e.target.value)}
+                              required
+                            />
+                          </div>
                         </div>
                       </div>
                     </>
