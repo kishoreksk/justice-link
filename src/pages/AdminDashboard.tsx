@@ -207,70 +207,33 @@ export default function AdminDashboard() {
         description: "The professional details have been updated successfully.",
       });
     } else {
-      // Create auth user account for professional
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: formData.name,
-            phone: formData.phone,
-          }
-        }
+      // Call edge function to create professional account
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-professional`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+          type: formData.type,
+          specialization: formData.specialization,
+          experience: formData.experience,
+          status: formData.status,
+        })
       });
 
-      if (authError) {
+      const result = await response.json();
+
+      if (!response.ok) {
         toast({
           title: "Error",
-          description: `Failed to create user account: ${authError.message}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!authData.user) {
-        toast({
-          title: "Error",
-          description: "Failed to create user account.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Assign professional role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: authData.user.id,
-          role: 'professional'
-        });
-
-      if (roleError) {
-        toast({
-          title: "Warning",
-          description: "User created but role assignment failed.",
-          variant: "destructive",
-        });
-      }
-
-      // Create professional record
-      const { error } = await supabase
-        .from('professionals')
-        .insert({
-          name: formData.name,
-          type: formData.type,
-          email: formData.email,
-          phone: formData.phone,
-          specialization: formData.specialization,
-          experience: parseInt(formData.experience),
-          status: formData.status,
-        });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to add professional record.",
+          description: result.error || "Failed to create professional account.",
           variant: "destructive",
         });
         return;
