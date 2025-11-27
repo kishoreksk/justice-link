@@ -44,6 +44,7 @@ export default function Track() {
   const [caseData, setCaseData] = useState<Dispute | null>(null);
   const [caseUpdates, setCaseUpdates] = useState<CaseUpdate[]>([]);
   const [userDisputes, setUserDisputes] = useState<Dispute[]>([]);
+  const [showPdfViewer, setShowPdfViewer] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -360,13 +361,28 @@ export default function Track() {
                                       <p className="text-xs font-medium text-muted-foreground uppercase">Terms</p>
                                       <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">{caseData.final_document.terms}</p>
                                     </div>
-                                   )}
-                                 </div>
-                                 {caseData.award_pdf_url && (
-                                   <div className="mt-4">
-                                     <PDFViewer disputeId={caseData.id} pdfUrl={caseData.award_pdf_url} />
-                                   </div>
                                  )}
+                                </div>
+                                {caseData.award_pdf_url && (
+                                  <div className="mt-4">
+                                    {!showPdfViewer ? (
+                                      <Button 
+                                        variant="outline" 
+                                        className="w-full"
+                                        onClick={() => setShowPdfViewer(true)}
+                                      >
+                                        <FileText className="mr-2 h-4 w-4" />
+                                        View Award Document
+                                      </Button>
+                                    ) : (
+                                      <PDFViewer 
+                                        disputeId={caseData.id} 
+                                        pdfUrl={caseData.award_pdf_url}
+                                        onClose={() => setShowPdfViewer(false)}
+                                      />
+                                    )}
+                                  </div>
+                                )}
                                </div>
                              </div>
                            </div>
