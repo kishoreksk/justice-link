@@ -18,11 +18,6 @@ export const Hero = () => {
       
       <div className="container relative z-10 mx-auto px-4">
         <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-card/90 px-4 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm">
-            <Shield className="h-4 w-4 text-secondary" />
-            Powered by NALSA & DLSA
-          </div>
-          
           <h1 className="mb-6 text-4xl font-bold text-primary-foreground md:text-5xl lg:text-6xl">
             eNyaya Resolve
           </h1>
@@ -31,8 +26,8 @@ export const Hero = () => {
             Accessible Legal Aid & Online Dispute Resolution
           </p>
           
-          <p className="mb-10 text-base text-primary-foreground/80 md:text-lg">
-            Empowering low-income citizens with fast, transparent, and digital contract enforcement
+          <p className="mb-10 text-base text-primary-foreground/80 md:text-lg max-w-2xl mx-auto">
+            Fast, transparent, and digital contract enforcement for everyone
           </p>
           
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -50,18 +45,18 @@ export const Hero = () => {
         <div className="mt-16 grid gap-8 md:grid-cols-3">
           <FeatureCard
             icon={<Scale className="h-8 w-8" />}
-            title="Free Legal Aid"
-            description="Access legal support under NALSA criteria at zero cost"
+            title="Legal Aid"
+            description="Access legal support at zero cost"
           />
           <FeatureCard
             icon={<Users className="h-8 w-8" />}
-            title="Online Mediation"
-            description="Resolve disputes digitally without court visits"
+            title="Online Resolution"
+            description="Resolve disputes digitally"
           />
           <FeatureCard
             icon={<Shield className="h-8 w-8" />}
-            title="Secure & Private"
-            description="Your data is encrypted and handled with care"
+            title="Secure"
+            description="Encrypted and confidential"
           />
         </div>
       </div>
