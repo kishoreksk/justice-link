@@ -21,7 +21,8 @@ import {
   Video,
   Download,
   Bell,
-  Lock
+  Lock,
+  Presentation
 } from "lucide-react";
 
 export default function Demo() {
@@ -87,76 +88,91 @@ export default function Demo() {
   if (!isAdmin) return null;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background via-background to-muted/20">
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <Badge variant="secondary" className="gap-1">
+        <div className="mb-12 text-center animate-fade-in">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Badge variant="secondary" className="gap-1 animate-scale-in">
               <Lock className="h-3 w-3" />
               Admin Only
             </Badge>
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">System Demo & Walkthrough</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-4">
+            System Demo & Walkthrough
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Complete overview of eNyaya Resolve features and workflows
           </p>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="user-flow">User Flow</TabsTrigger>
-            <TabsTrigger value="admin-flow">Admin Flow</TabsTrigger>
-            <TabsTrigger value="professional-flow">Professional Flow</TabsTrigger>
-            <TabsTrigger value="features">Key Features</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-card/50 backdrop-blur-sm p-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="user-flow" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              User Flow
+            </TabsTrigger>
+            <TabsTrigger value="admin-flow" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground transition-all">
+              Admin Flow
+            </TabsTrigger>
+            <TabsTrigger value="professional-flow" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-all">
+              Professional Flow
+            </TabsTrigger>
+            <TabsTrigger value="features" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              Key Features
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>System Architecture</CardTitle>
+          <TabsContent value="overview" className="space-y-6 animate-fade-in">
+            <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5">
+                <CardTitle className="text-2xl">System Architecture</CardTitle>
                 <CardDescription>Understanding the eNyaya Resolve platform</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="p-4 border rounded-lg">
-                    <Users className="h-8 w-8 text-primary mb-2" />
-                    <h3 className="font-semibold mb-1">Three User Roles</h3>
+              <CardContent className="space-y-6 pt-6">
+                <div className="grid gap-6 md:grid-cols-3">
+                  <div className="group p-6 border-2 rounded-lg hover:border-primary hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-primary/5 to-transparent">
+                    <Users className="h-10 w-10 text-primary mb-3 group-hover:scale-110 transition-transform" />
+                    <h3 className="font-semibold mb-2 text-lg">Three User Roles</h3>
                     <p className="text-sm text-muted-foreground">Clients, Professionals, and Administrators</p>
                   </div>
-                  <div className="p-4 border rounded-lg">
-                    <Scale className="h-8 w-8 text-primary mb-2" />
-                    <h3 className="font-semibold mb-1">ODR Platform</h3>
+                  <div className="group p-6 border-2 rounded-lg hover:border-secondary hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-secondary/5 to-transparent">
+                    <Scale className="h-10 w-10 text-secondary mb-3 group-hover:scale-110 transition-transform" />
+                    <h3 className="font-semibold mb-2 text-lg">ODR Platform</h3>
                     <p className="text-sm text-muted-foreground">Online Dispute Resolution with mediation & arbitration</p>
                   </div>
-                  <div className="p-4 border rounded-lg">
-                    <Shield className="h-8 w-8 text-primary mb-2" />
-                    <h3 className="font-semibold mb-1">Legal Aid Integration</h3>
+                  <div className="group p-6 border-2 rounded-lg hover:border-accent hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-accent/5 to-transparent">
+                    <Shield className="h-10 w-10 text-accent mb-3 group-hover:scale-110 transition-transform" />
+                    <h3 className="font-semibold mb-2 text-lg">Legal Aid Integration</h3>
                     <p className="text-sm text-muted-foreground">Eligibility assessment based on income criteria</p>
                   </div>
                 </div>
 
-                <div className="border-t pt-4">
-                  <h3 className="font-semibold mb-3">Core Components</h3>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span><strong>Authentication:</strong> Secure login/signup with role-based access control</span>
+                <div className="border-t-2 pt-6 bg-gradient-to-r from-muted/30 to-transparent rounded-lg p-6">
+                  <h3 className="font-semibold mb-4 text-lg flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-primary" />
+                    Core Components
+                  </h3>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span><strong className="text-primary">Authentication:</strong> Secure login/signup with role-based access control</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span><strong>Database:</strong> PostgreSQL with Row-Level Security policies</span>
+                    <li className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span><strong className="text-primary">Database:</strong> PostgreSQL with Row-Level Security policies</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span><strong>Storage:</strong> Secure document storage for award PDFs</span>
+                    <li className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span><strong className="text-primary">Storage:</strong> Secure document storage for award PDFs</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span><strong>Notifications:</strong> Real-time updates via edge functions</span>
+                    <li className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span><strong className="text-primary">Notifications:</strong> Real-time updates via edge functions</span>
                     </li>
                   </ul>
                 </div>
@@ -165,73 +181,89 @@ export default function Demo() {
           </TabsContent>
 
           {/* User Flow Tab */}
-          <TabsContent value="user-flow" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Client/User Journey</CardTitle>
+          <TabsContent value="user-flow" className="space-y-6 animate-fade-in">
+            <Card className="border-2 border-primary/20 shadow-lg overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <Users className="h-6 w-6 text-primary" />
+                  Client/User Journey
+                </CardTitle>
                 <CardDescription>Step-by-step workflow for dispute filers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
+              <CardContent className="pt-6">
+                <div className="space-y-8">
                   {[
                     {
                       step: 1,
                       icon: FileText,
                       title: "Register Dispute",
                       description: "User fills out the dispute registration form with applicant, respondent, and contract details",
-                      actions: ["Navigate to /register", "Fill all required fields", "Submit dispute"]
+                      actions: ["Navigate to /register", "Fill all required fields", "Submit dispute"],
+                      color: "primary"
                     },
                     {
                       step: 2,
                       icon: Shield,
                       title: "Legal Aid Assessment",
                       description: "System automatically checks eligibility based on annual income (<₹5,00,000)",
-                      actions: ["Income verified", "Legal aid flag set", "Case ID generated"]
+                      actions: ["Income verified", "Legal aid flag set", "Case ID generated"],
+                      color: "secondary"
                     },
                     {
                       step: 3,
                       icon: Search,
                       title: "Track Case",
                       description: "User can track case progress using unique Case ID",
-                      actions: ["Visit /track page", "Enter Case ID", "View real-time status"]
+                      actions: ["Visit /track page", "Enter Case ID", "View real-time status"],
+                      color: "accent"
                     },
                     {
                       step: 4,
                       icon: Bell,
                       title: "Receive Notifications",
                       description: "User gets notified when professional is assigned or meeting is scheduled",
-                      actions: ["Email notifications", "In-app bell icon", "Case updates timeline"]
+                      actions: ["Email notifications", "In-app bell icon", "Case updates timeline"],
+                      color: "primary"
                     },
                     {
                       step: 5,
                       icon: Video,
                       title: "Attend Meetings",
                       description: "Join virtual meetings via provided links",
-                      actions: ["Click meeting link", "Participate online", "No court visit needed"]
+                      actions: ["Click meeting link", "Participate online", "No court visit needed"],
+                      color: "secondary"
                     },
                     {
                       step: 6,
                       icon: Award,
                       title: "Receive Award",
                       description: "View and download final arbitration award or mediation report as PDF",
-                      actions: ["PDF viewable in portal", "Download option", "Legally binding document"]
+                      actions: ["PDF viewable in portal", "Download option", "Legally binding document"],
+                      color: "accent"
                     }
-                  ].map((item) => (
-                    <div key={item.step} className="flex gap-4 pb-6 border-b last:border-0">
-                      <div className="flex-shrink-0">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
+                  ].map((item, index) => (
+                    <div 
+                      key={item.step} 
+                      className="group flex gap-4 pb-8 border-b last:border-0 relative hover:scale-[1.02] transition-transform duration-300"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="flex-shrink-0 relative">
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-${item.color} text-${item.color}-foreground font-bold text-lg shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
                           {item.step}
                         </div>
+                        {index < 5 && (
+                          <div className="absolute top-12 left-1/2 w-0.5 h-8 bg-gradient-to-b from-primary/50 to-transparent -translate-x-1/2"></div>
+                        )}
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <item.icon className="h-5 w-5 text-primary" />
-                          <h3 className="font-semibold">{item.title}</h3>
+                        <div className="flex items-center gap-3 mb-3">
+                          <item.icon className={`h-6 w-6 text-${item.color} group-hover:scale-110 transition-transform`} />
+                          <h3 className="font-semibold text-lg">{item.title}</h3>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
+                        <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
                         <div className="flex flex-wrap gap-2">
                           {item.actions.map((action, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs">
+                            <Badge key={idx} variant="outline" className="text-xs hover:bg-primary/10 transition-colors">
                               {action}
                             </Badge>
                           ))}
@@ -394,139 +426,139 @@ export default function Demo() {
           </TabsContent>
 
           {/* Features Tab */}
-          <TabsContent value="features" className="space-y-6">
+          <TabsContent value="features" className="space-y-6 animate-fade-in">
             <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
+              <Card className="group border-2 hover:border-primary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-primary/10 to-transparent">
                   <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5" />
+                    <Award className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                     PDF Award Generation
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p><strong>Technology:</strong> jsPDF library for client-side generation</p>
-                  <p><strong>Contents:</strong> Case details, parties, proceedings, resolution, terms, signature</p>
-                  <p><strong>Storage:</strong> Supabase Storage bucket with RLS policies</p>
-                  <p><strong>Viewing:</strong> react-pdf with zoom controls, page navigation</p>
-                  <p><strong>Security:</strong> Only accessible to case parties and professionals</p>
+                <CardContent className="space-y-3 text-sm pt-6">
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Technology:</strong> jsPDF library for client-side generation</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Contents:</strong> Case details, parties, proceedings, resolution, terms, signature</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Storage:</strong> Supabase Storage bucket with RLS policies</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Viewing:</strong> react-pdf with zoom controls, page navigation</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Security:</strong> Only accessible to case parties and professionals</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="group border-2 hover:border-secondary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-secondary/10 to-transparent">
                   <CardTitle className="flex items-center gap-2">
-                    <Bell className="h-5 w-5" />
+                    <Bell className="h-6 w-6 text-secondary group-hover:scale-110 transition-transform" />
                     Notification System
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p><strong>Trigger Events:</strong> Assignment, meeting scheduled, document issued</p>
-                  <p><strong>Channels:</strong> Email (Resend API) + In-app notifications</p>
-                  <p><strong>Edge Functions:</strong> send-dispute-notification for email delivery</p>
-                  <p><strong>Database:</strong> notifications table with read/unread status</p>
-                  <p><strong>Real-time:</strong> Bell icon with unread count</p>
+                <CardContent className="space-y-3 text-sm pt-6">
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Trigger Events:</strong> Assignment, meeting scheduled, document issued</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Channels:</strong> Email (Resend API) + In-app notifications</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Edge Functions:</strong> send-dispute-notification for email delivery</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Database:</strong> notifications table with read/unread status</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Real-time:</strong> Bell icon with unread count</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="group border-2 hover:border-accent/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-accent/10 to-transparent">
                   <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
+                    <Shield className="h-6 w-6 text-accent group-hover:scale-110 transition-transform" />
                     Security & Access Control
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p><strong>Authentication:</strong> Email/password with auto-confirm</p>
-                  <p><strong>RLS Policies:</strong> Row-level security on all tables</p>
-                  <p><strong>Roles:</strong> Admin, Professional, Client (separate table)</p>
-                  <p><strong>Data Privacy:</strong> Users see only their own disputes</p>
-                  <p><strong>File Security:</strong> Signed URLs with expiration</p>
+                <CardContent className="space-y-3 text-sm pt-6">
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Authentication:</strong> Email/password with auto-confirm</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">RLS Policies:</strong> Row-level security on all tables</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Roles:</strong> Admin, Professional, Client (separate table)</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Data Privacy:</strong> Users see only their own disputes</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">File Security:</strong> Signed URLs with expiration</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="group border-2 hover:border-primary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-primary/10 to-transparent">
                   <CardTitle className="flex items-center gap-2">
-                    <Search className="h-5 w-5" />
+                    <Search className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                     Case Tracking
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p><strong>Unique ID:</strong> ODR/YYYY/NNNNNN format for each case</p>
-                  <p><strong>Timeline:</strong> Visual timeline of all case events</p>
-                  <p><strong>Updates:</strong> case_updates table for history tracking</p>
-                  <p><strong>Status:</strong> Pending → Assigned → Meeting → Resolved</p>
-                  <p><strong>Access:</strong> Public tracking with case ID lookup</p>
+                <CardContent className="space-y-3 text-sm pt-6">
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Unique ID:</strong> ODR/YYYY/NNNNNN format for each case</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Timeline:</strong> Visual timeline of all case events</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Updates:</strong> case_updates table for history tracking</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Status:</strong> Pending → Assigned → Meeting → Resolved</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Access:</strong> Public tracking with case ID lookup</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="group border-2 hover:border-secondary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-secondary/10 to-transparent">
                   <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
+                    <Calendar className="h-6 w-6 text-secondary group-hover:scale-110 transition-transform" />
                     Meeting Management
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p><strong>Scheduling:</strong> Professionals set date/time and virtual links</p>
-                  <p><strong>Database:</strong> dispute_meetings table tracks all meetings</p>
-                  <p><strong>Integration:</strong> Google Meet, Zoom, or any video platform</p>
-                  <p><strong>Notifications:</strong> Automatic email to both parties</p>
-                  <p><strong>Display:</strong> Shown on tracking page and dashboards</p>
+                <CardContent className="space-y-3 text-sm pt-6">
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Scheduling:</strong> Professionals set date/time and virtual links</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Database:</strong> dispute_meetings table tracks all meetings</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Integration:</strong> Google Meet, Zoom, or any video platform</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Notifications:</strong> Automatic email to both parties</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Display:</strong> Shown on tracking page and dashboards</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="group border-2 hover:border-accent/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="bg-gradient-to-br from-accent/10 to-transparent">
                   <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
+                    <FileText className="h-6 w-6 text-accent group-hover:scale-110 transition-transform" />
                     Document Management
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p><strong>Submission:</strong> dispute_documents table tracks submitted docs</p>
-                  <p><strong>Types:</strong> Arbitration Award, Mediation Report</p>
-                  <p><strong>Metadata:</strong> Document name, description, submitted by</p>
-                  <p><strong>Viewer:</strong> Embedded PDF viewer with download option</p>
-                  <p><strong>Format:</strong> Professional-grade PDF with digital signature</p>
+                <CardContent className="space-y-3 text-sm pt-6">
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Submission:</strong> dispute_documents table tracks submitted docs</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Types:</strong> Arbitration Award, Mediation Report</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Metadata:</strong> Document name, description, submitted by</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Viewer:</strong> Embedded PDF viewer with download option</p>
+                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Format:</strong> Professional-grade PDF with digital signature</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Technical Stack</CardTitle>
+            <Card className="border-2 border-primary/20 shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
+                <CardTitle className="text-xl">Technical Stack</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div>
-                    <h4 className="font-semibold mb-2">Frontend</h4>
-                    <ul className="text-sm space-y-1 text-muted-foreground">
-                      <li>• React + TypeScript</li>
-                      <li>• Vite build tool</li>
-                      <li>• Tailwind CSS</li>
-                      <li>• shadcn/ui components</li>
-                      <li>• React Router</li>
-                      <li>• React Query</li>
+              <CardContent className="pt-6">
+                <div className="grid gap-6 md:grid-cols-3">
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-primary/5 to-transparent border hover:border-primary/50 transition-all">
+                    <h4 className="font-semibold mb-3 text-primary">Frontend</h4>
+                    <ul className="text-sm space-y-2 text-muted-foreground">
+                      <li className="hover:text-foreground transition-colors">• React + TypeScript</li>
+                      <li className="hover:text-foreground transition-colors">• Vite build tool</li>
+                      <li className="hover:text-foreground transition-colors">• Tailwind CSS</li>
+                      <li className="hover:text-foreground transition-colors">• shadcn/ui components</li>
+                      <li className="hover:text-foreground transition-colors">• React Router</li>
+                      <li className="hover:text-foreground transition-colors">• React Query</li>
                     </ul>
                   </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Backend</h4>
-                    <ul className="text-sm space-y-1 text-muted-foreground">
-                      <li>• Supabase (PostgreSQL)</li>
-                      <li>• Edge Functions (Deno)</li>
-                      <li>• Row Level Security</li>
-                      <li>• Authentication</li>
-                      <li>• Storage API</li>
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-secondary/5 to-transparent border hover:border-secondary/50 transition-all">
+                    <h4 className="font-semibold mb-3 text-secondary">Backend</h4>
+                    <ul className="text-sm space-y-2 text-muted-foreground">
+                      <li className="hover:text-foreground transition-colors">• Supabase (PostgreSQL)</li>
+                      <li className="hover:text-foreground transition-colors">• Edge Functions (Deno)</li>
+                      <li className="hover:text-foreground transition-colors">• Row Level Security</li>
+                      <li className="hover:text-foreground transition-colors">• Authentication</li>
+                      <li className="hover:text-foreground transition-colors">• Storage API</li>
                     </ul>
                   </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Integrations</h4>
-                    <ul className="text-sm space-y-1 text-muted-foreground">
-                      <li>• Resend (Email)</li>
-                      <li>• jsPDF (Generation)</li>
-                      <li>• react-pdf (Viewing)</li>
-                      <li>• Lucide (Icons)</li>
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-accent/5 to-transparent border hover:border-accent/50 transition-all">
+                    <h4 className="font-semibold mb-3 text-accent">Integrations</h4>
+                    <ul className="text-sm space-y-2 text-muted-foreground">
+                      <li className="hover:text-foreground transition-colors">• Resend (Email)</li>
+                      <li className="hover:text-foreground transition-colors">• jsPDF (Generation)</li>
+                      <li className="hover:text-foreground transition-colors">• react-pdf (Viewing)</li>
+                      <li className="hover:text-foreground transition-colors">• Lucide (Icons)</li>
                     </ul>
                   </div>
                 </div>
@@ -535,28 +567,43 @@ export default function Demo() {
           </TabsContent>
         </Tabs>
 
-        <Card className="mt-6 bg-secondary/5 border-secondary/20">
-          <CardHeader>
-            <CardTitle>Demo Instructions</CardTitle>
+        <Card className="mt-8 border-2 shadow-xl bg-gradient-to-br from-secondary/10 via-card to-accent/10 animate-fade-in">
+          <CardHeader className="border-b bg-gradient-to-r from-secondary/20 to-accent/20">
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Presentation className="h-6 w-6" />
+              Demo Instructions
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-semibold mb-2">To demonstrate the complete workflow:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                <li>Create a test user account via /auth (signup flow)</li>
-                <li>File a sample dispute via /register with dummy data</li>
-                <li>As admin, assign a professional to the case from /dashboard</li>
-                <li>Switch to professional account at /professional</li>
-                <li>Schedule a meeting and issue an award document</li>
-                <li>Return to user view to track case and view PDF</li>
+          <CardContent className="space-y-6 pt-6">
+            <div className="p-6 rounded-lg bg-card/80 backdrop-blur-sm border-2 border-primary/20">
+              <h3 className="font-semibold mb-4 text-lg flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-primary" />
+                Complete Workflow Demonstration
+              </h3>
+              <ol className="list-decimal list-inside space-y-3 text-sm text-muted-foreground">
+                <li className="hover:bg-muted/50 p-2 rounded transition-colors">Create a test user account via /auth (signup flow)</li>
+                <li className="hover:bg-muted/50 p-2 rounded transition-colors">File a sample dispute via /register with dummy data</li>
+                <li className="hover:bg-muted/50 p-2 rounded transition-colors">As admin, assign a professional to the case from /dashboard</li>
+                <li className="hover:bg-muted/50 p-2 rounded transition-colors">Switch to professional account at /professional</li>
+                <li className="hover:bg-muted/50 p-2 rounded transition-colors">Schedule a meeting and issue an award document</li>
+                <li className="hover:bg-muted/50 p-2 rounded transition-colors">Return to user view to track case and view PDF</li>
               </ol>
             </div>
-            <div className="flex gap-4">
-              <Button onClick={() => navigate("/register")}>
-                <FileText className="mr-2 h-4 w-4" />
+            <div className="flex gap-4 flex-wrap">
+              <Button 
+                onClick={() => navigate("/register")}
+                className="hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
+                size="lg"
+              >
+                <FileText className="mr-2 h-5 w-5" />
                 File Demo Dispute
               </Button>
-              <Button variant="outline" onClick={() => navigate("/dashboard")}>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate("/dashboard")}
+                className="hover:scale-105 transition-transform"
+                size="lg"
+              >
                 Go to Dashboard
               </Button>
             </div>
