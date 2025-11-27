@@ -22,6 +22,9 @@ export const Footer = () => {
             <p className="mt-2 text-xs text-muted-foreground">
               Developed by <span className="font-medium">Kishore KS</span>, guided by <span className="font-medium">Advocate Dr.Meyyappan Kumaran S</span>
             </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              School of Excellence in Law, the academic wing of Tamil Nadu Dr. Ambedkar Law University (TNDALU), Chennai
+            </p>
           </div>
           
           <div>
