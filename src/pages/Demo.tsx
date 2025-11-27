@@ -102,21 +102,36 @@ export default function Demo() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm pb-6 pt-2 -mx-4 px-4 mb-8">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-card/80 backdrop-blur-sm p-1 shadow-lg">
-              <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+          <div className="border-b-2 border-border mb-8">
+            <TabsList className="h-auto bg-transparent p-0 w-full justify-start gap-0">
+              <TabsTrigger 
+                value="overview" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-4 transition-all hover:text-primary"
+              >
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="user-flow" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              <TabsTrigger 
+                value="user-flow" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-4 transition-all hover:text-primary"
+              >
                 User Flow
               </TabsTrigger>
-              <TabsTrigger value="admin-flow" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground transition-all">
+              <TabsTrigger 
+                value="admin-flow" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-secondary data-[state=active]:bg-transparent data-[state=active]:text-secondary px-6 py-4 transition-all hover:text-secondary"
+              >
                 Admin Flow
               </TabsTrigger>
-              <TabsTrigger value="professional-flow" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-all">
+              <TabsTrigger 
+                value="professional-flow" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent data-[state=active]:text-accent px-6 py-4 transition-all hover:text-accent"
+              >
                 Professional Flow
               </TabsTrigger>
-              <TabsTrigger value="features" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              <TabsTrigger 
+                value="features" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-4 transition-all hover:text-primary"
+              >
                 Key Features
               </TabsTrigger>
             </TabsList>
