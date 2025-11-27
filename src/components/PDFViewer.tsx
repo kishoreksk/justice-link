@@ -2,17 +2,19 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, Loader2 } from 'lucide-react';
+import { Download, FileText, Loader2, Maximize2, Minimize2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface PDFViewerProps {
   disputeId: string;
   pdfUrl?: string;
+  onClose?: () => void;
 }
 
-export const PDFViewer = ({ disputeId, pdfUrl }: PDFViewerProps) => {
+export const PDFViewer = ({ disputeId, pdfUrl, onClose }: PDFViewerProps) => {
   const [loading, setLoading] = useState(false);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -96,17 +98,41 @@ export const PDFViewer = ({ disputeId, pdfUrl }: PDFViewerProps) => {
   }
 
   return (
-    <Card>
+    <Card className={isFullscreen ? "fixed inset-0 z-50 rounded-none" : ""}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
             Award Document
           </span>
-          <Button onClick={handleDownload} variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={handleDownload} variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Download
+            </Button>
+            <Button 
+              onClick={() => setIsFullscreen(!isFullscreen)} 
+              variant="outline" 
+              size="sm"
+              title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            >
+              {isFullscreen ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
+            </Button>
+            {onClose && (
+              <Button 
+                onClick={onClose} 
+                variant="outline" 
+                size="sm"
+                title="Close"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -118,12 +144,12 @@ export const PDFViewer = ({ disputeId, pdfUrl }: PDFViewerProps) => {
           <object
             data={`${viewUrl}#toolbar=0`}
             type="application/pdf"
-            className="w-full h-[600px] border rounded"
+            className={`w-full border rounded ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[600px]'}`}
             title="Award Document"
           >
             <iframe
               src={`${viewUrl}#toolbar=0`}
-              className="w-full h-[600px] border rounded"
+              className={`w-full border rounded ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[600px]'}`}
               title="Award Document"
             />
           </object>

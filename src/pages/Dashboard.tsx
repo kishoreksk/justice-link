@@ -380,7 +380,15 @@ export default function Dashboard() {
                               {dispute.document_type === "arbitration_award" ? "Arbitration Award Issued" : "Mediation Report Issued"}
                             </Badge>
                             {dispute.award_pdf_url && (
-                              <PDFViewer disputeId={dispute.id} pdfUrl={dispute.award_pdf_url} />
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full"
+                                onClick={() => window.open(`/track?caseId=${dispute.case_id}`, '_blank')}
+                              >
+                                <FileText className="mr-2 h-4 w-4" />
+                                View Award Document
+                              </Button>
                             )}
                           </div>
                         )}
