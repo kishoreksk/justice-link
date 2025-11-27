@@ -102,8 +102,8 @@ export default function Demo() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm pb-4 -mx-4 px-4">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-card/50 backdrop-blur-sm p-1">
+          <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm pb-6 pt-2 -mx-4 px-4 mb-8">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-card/80 backdrop-blur-sm p-1 shadow-lg">
               <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
                 Overview
               </TabsTrigger>
