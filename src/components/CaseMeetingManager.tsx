@@ -33,6 +33,10 @@ interface Dispute {
   meeting_link?: string;
   document_type?: string;
   final_document?: any;
+  applicant_name: string;
+  applicant_email: string;
+  respondent_name: string;
+  respondent_email: string;
 }
 
 interface CaseMeetingManagerProps {
@@ -88,9 +92,28 @@ export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProp
       message: `A video conference has been scheduled for case ${dispute.case_id} on ${new Date(meetingData.meeting_date).toLocaleString()}`,
     });
 
+    // Send email notifications to both parties
+    const { error: emailError } = await supabase.functions.invoke('send-dispute-notification', {
+      body: {
+        type: 'meeting_scheduled',
+        caseId: dispute.case_id,
+        applicantName: dispute.applicant_name,
+        applicantEmail: dispute.applicant_email,
+        respondentName: dispute.respondent_name,
+        respondentEmail: dispute.respondent_email,
+        resolutionMethod: dispute.resolution_type,
+        meetingLink: meetingData.meeting_link,
+        meetingDate: meetingData.meeting_date,
+      }
+    });
+
+    if (emailError) {
+      console.error('Failed to send email notifications:', emailError);
+    }
+
     toast({
       title: "Meeting Scheduled",
-      description: "The parties have been notified.",
+      description: "The parties have been notified via email.",
     });
 
     setIsScheduleOpen(false);
@@ -138,9 +161,26 @@ export const CaseMeetingManager = ({ dispute, onUpdate }: CaseMeetingManagerProp
       message: `${documentData.document_type === "arbitration_award" ? "Arbitration Award" : "Mediation Report"} has been issued for case ${dispute.case_id}`,
     });
 
+    // Send email notifications to both parties
+    const { error: emailError } = await supabase.functions.invoke('send-dispute-notification', {
+      body: {
+        type: 'award_finalized',
+        caseId: dispute.case_id,
+        applicantName: dispute.applicant_name,
+        applicantEmail: dispute.applicant_email,
+        respondentName: dispute.respondent_name,
+        respondentEmail: dispute.respondent_email,
+        resolutionMethod: dispute.resolution_type,
+      }
+    });
+
+    if (emailError) {
+      console.error('Failed to send email notifications:', emailError);
+    }
+
     toast({
       title: "Document Issued",
-      description: "The final document has been recorded successfully.",
+      description: "The final document has been recorded and parties notified via email.",
     });
 
     setIsDocumentOpen(false);
