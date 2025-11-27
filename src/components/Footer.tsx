@@ -19,6 +19,9 @@ export const Footer = () => {
             <p className="text-xs text-muted-foreground">
               © 2025 eNyaya Resolve. A Research Prototype.
             </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Developed by <span className="font-medium">Kishore KS</span>, guided by <span className="font-medium">Advocate Dr.Meyyappan Kumaran S</span>
+            </p>
           </div>
           
           <div>
