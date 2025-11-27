@@ -10,21 +10,21 @@ const Index = () => {
       <Navbar />
       <Hero />
       
-      {/* How It Works Section */}
+      {/* Process Section */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-foreground">How It Works</h2>
-            <p className="text-muted-foreground">Simple steps to resolve your dispute</p>
+            <h2 className="mb-4 text-3xl font-bold text-foreground">Simple Process</h2>
+            <p className="text-muted-foreground">Four steps to resolution</p>
           </div>
           
           <div className="mx-auto max-w-4xl">
             <div className="grid gap-6 md:grid-cols-4">
               {[
-                { step: "1", icon: FileText, title: "Register", desc: "File your dispute online" },
-                { step: "2", icon: Shield, title: "Assess", desc: "Check legal aid eligibility" },
-                { step: "3", icon: Users, title: "Mediate", desc: "Work with assigned mediator" },
-                { step: "4", icon: CheckCircle, title: "Resolve", desc: "Get digital settlement" },
+                { step: "1", icon: FileText, title: "Register", desc: "File your dispute" },
+                { step: "2", icon: Shield, title: "Assess", desc: "Eligibility check" },
+                { step: "3", icon: Users, title: "Mediate", desc: "Professional guidance" },
+                { step: "4", icon: CheckCircle, title: "Resolve", desc: "Digital settlement" },
               ].map((item) => (
                 <Card key={item.step} className="text-center">
                   <CardContent className="pt-6">
@@ -45,17 +45,12 @@ const Index = () => {
       {/* Impact Section */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-foreground">Making a Difference</h2>
-            <p className="text-muted-foreground">Our platform's potential impact on access to justice</p>
-          </div>
-          
           <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-3">
             <Card className="border-secondary/20 bg-secondary/5">
               <CardContent className="pt-6 text-center">
                 <TrendingUp className="mx-auto mb-4 h-10 w-10 text-secondary" />
                 <div className="mb-2 text-3xl font-bold text-secondary">60%</div>
-                <p className="text-sm text-muted-foreground">Faster dispute resolution</p>
+                <p className="text-sm text-muted-foreground">Faster resolution</p>
               </CardContent>
             </Card>
             
@@ -63,7 +58,7 @@ const Index = () => {
               <CardContent className="pt-6 text-center">
                 <Scale className="mx-auto mb-4 h-10 w-10 text-primary" />
                 <div className="mb-2 text-3xl font-bold text-primary">Zero Cost</div>
-                <p className="text-sm text-muted-foreground">For eligible legal aid applicants</p>
+                <p className="text-sm text-muted-foreground">For eligible applicants</p>
               </CardContent>
             </Card>
             
@@ -71,7 +66,7 @@ const Index = () => {
               <CardContent className="pt-6 text-center">
                 <Users className="mx-auto mb-4 h-10 w-10 text-accent" />
                 <div className="mb-2 text-3xl font-bold text-accent">100%</div>
-                <p className="text-sm text-muted-foreground">Digital, transparent process</p>
+                <p className="text-sm text-muted-foreground">Digital & transparent</p>
               </CardContent>
             </Card>
           </div>
