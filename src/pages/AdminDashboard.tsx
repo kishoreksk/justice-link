@@ -64,6 +64,7 @@ export default function AdminDashboard() {
     specialization: "",
     experience: "",
     status: "active" as Professional["status"],
+    password: "",
   });
 
   useEffect(() => {
@@ -131,6 +132,7 @@ export default function AdminDashboard() {
       specialization: "",
       experience: "",
       status: "active",
+      password: "",
     });
     setEditingProfessional(null);
   };
@@ -145,6 +147,7 @@ export default function AdminDashboard() {
       specialization: professional.specialization,
       experience: professional.experience.toString(),
       status: professional.status,
+      password: "", // Don't show password when editing
     });
     setIsDialogOpen(true);
   };
@@ -204,6 +207,54 @@ export default function AdminDashboard() {
         description: "The professional details have been updated successfully.",
       });
     } else {
+      // Create auth user account for professional
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: formData.name,
+            phone: formData.phone,
+          }
+        }
+      });
+
+      if (authError) {
+        toast({
+          title: "Error",
+          description: `Failed to create user account: ${authError.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!authData.user) {
+        toast({
+          title: "Error",
+          description: "Failed to create user account.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Assign professional role
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: authData.user.id,
+          role: 'professional'
+        });
+
+      if (roleError) {
+        toast({
+          title: "Warning",
+          description: "User created but role assignment failed.",
+          variant: "destructive",
+        });
+      }
+
+      // Create professional record
       const { error } = await supabase
         .from('professionals')
         .insert({
@@ -219,15 +270,15 @@ export default function AdminDashboard() {
       if (error) {
         toast({
           title: "Error",
-          description: "Failed to add professional.",
+          description: "Failed to add professional record.",
           variant: "destructive",
         });
         return;
       }
 
       toast({
-        title: "Professional Added",
-        description: "New professional has been added successfully.",
+        title: "Professional Account Created",
+        description: `Account created for ${formData.name}. They can now log in with their email and password.`,
       });
     }
 
@@ -378,6 +429,23 @@ export default function AdminDashboard() {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    {!editingProfessional && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          required
+                          placeholder="Create a password"
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Professional will use this password to log in
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <DialogFooter>
