@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Scale, LogOut, User, Users, Shield } from "lucide-react";
+import { Scale, LogOut, User, Users, Shield, Presentation } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -126,6 +126,11 @@ export const Navbar = () => {
                 Professionals
               </Link>
             )}
+            {userRole === 'admin' && (
+              <Link to="/admin/demo" className="text-sm font-medium text-secondary hover:text-secondary/80 transition-colors">
+                Demo
+              </Link>
+            )}
             <Link to="/about" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               About
             </Link>
@@ -163,6 +168,12 @@ export const Navbar = () => {
                         <Link to="/admin/roles" className="cursor-pointer">
                           <Shield className="mr-2 h-4 w-4" />
                           Manage Roles
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/demo" className="cursor-pointer">
+                          <Presentation className="mr-2 h-4 w-4" />
+                          System Demo
                         </Link>
                       </DropdownMenuItem>
                     </>
