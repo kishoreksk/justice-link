@@ -99,39 +99,39 @@ export const Navbar = () => {
           </Link>
           
           <div className="hidden items-center gap-6 md:flex">
-            <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer relative z-10">
               Home
             </Link>
             {userRole !== 'client' && (
-              <Link to="/register" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              <Link to="/register" className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer relative z-10">
                 File Dispute
               </Link>
             )}
             {userRole === 'client' ? (
-              <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer relative z-10">
                 My Cases
               </Link>
             ) : (
               <>
-                <Link to="/track" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                <Link to="/track" className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer relative z-10">
                   Track Case
                 </Link>
-                <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer relative z-10">
                   Dashboard
                 </Link>
               </>
             )}
             {userRole === 'admin' && (
-              <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer relative z-10">
                 Professionals
               </Link>
             )}
             {userRole === 'admin' && (
-              <Link to="/admin/demo" className="text-sm font-medium text-secondary hover:text-secondary/80 transition-colors">
+              <Link to="/admin/demo" className="text-sm font-medium text-secondary hover:text-secondary/80 transition-colors cursor-pointer relative z-10">
                 Demo
               </Link>
             )}
-            <Link to="/about" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <Link to="/about" className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer relative z-10">
               About
             </Link>
           </div>
