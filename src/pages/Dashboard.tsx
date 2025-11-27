@@ -30,9 +30,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FileText, Clock, CheckCircle2, AlertCircle, UserPlus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { FileText, Clock, CheckCircle2, AlertCircle, UserPlus, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 interface Dispute {
   id: string;
@@ -41,8 +45,11 @@ interface Dispute {
   applicant_name: string;
   applicant_email: string;
   applicant_phone: string;
+  applicant_address?: string;
   respondent_name: string;
-  respondent_email: string;
+  respondent_email?: string;
+  respondent_phone?: string;
+  respondent_address?: string;
   contract_type: string;
   resolution_type: string;
   dispute_description: string;
@@ -69,14 +76,32 @@ interface Professional {
   status: string;
 }
 
+// Validation schema for case editing
+const editCaseSchema = z.object({
+  applicant_name: z.string().trim().min(1, "Applicant name is required").max(100),
+  applicant_phone: z.string().trim().min(10, "Valid phone number required").max(15),
+  applicant_email: z.string().trim().email("Valid email required").max(255),
+  applicant_address: z.string().trim().max(500).optional(),
+  respondent_name: z.string().trim().min(1, "Respondent name is required").max(100),
+  respondent_phone: z.string().trim().max(15).optional(),
+  respondent_email: z.string().trim().email().max(255).optional().or(z.literal("")),
+  respondent_address: z.string().trim().max(500).optional(),
+  contract_type: z.string().trim().min(1, "Contract type is required").max(100),
+  dispute_description: z.string().trim().min(10, "Description must be at least 10 characters").max(2000),
+  status: z.string().trim().min(1, "Status is required"),
+});
+
 export default function Dashboard() {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
+  const [editingDispute, setEditingDispute] = useState<Dispute | null>(null);
   const [selectedProfessionalId, setSelectedProfessionalId] = useState("");
   const [userRole, setUserRole] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -181,6 +206,76 @@ export default function Dashboard() {
     setIsAssignDialogOpen(false);
     setSelectedDispute(null);
     setSelectedProfessionalId("");
+  };
+
+  const handleEditClick = (dispute: Dispute) => {
+    setEditingDispute(dispute);
+    setIsEditDialogOpen(true);
+    setValidationErrors({});
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingDispute) return;
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      applicant_name: formData.get("applicant_name") as string,
+      applicant_phone: formData.get("applicant_phone") as string,
+      applicant_email: formData.get("applicant_email") as string,
+      applicant_address: formData.get("applicant_address") as string,
+      respondent_name: formData.get("respondent_name") as string,
+      respondent_phone: formData.get("respondent_phone") as string,
+      respondent_email: formData.get("respondent_email") as string,
+      respondent_address: formData.get("respondent_address") as string,
+      contract_type: formData.get("contract_type") as string,
+      dispute_description: formData.get("dispute_description") as string,
+      status: formData.get("status") as string,
+    };
+
+    try {
+      const validated = editCaseSchema.parse(data);
+      
+      const { error } = await supabase
+        .from('disputes')
+        .update(validated)
+        .eq('id', editingDispute.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Case Updated",
+        description: "Case details have been updated successfully.",
+      });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await loadDisputes(user.id, userRole);
+      }
+      setIsEditDialogOpen(false);
+      setEditingDispute(null);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setValidationErrors(errors);
+        toast({
+          title: "Validation Error",
+          description: "Please check the form for errors.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update case details.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const getAssignedProfessional = (dispute: Dispute) => {
@@ -474,8 +569,17 @@ export default function Dashboard() {
                               <span className="text-sm text-muted-foreground">Not scheduled</span>
                             )}
                           </TableCell>
-                          <TableCell className="text-right">
+                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2 flex-wrap">
+                              {userRole === 'admin' && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditClick(dispute)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              )}
                               {!dispute.assigned_professional_id && (
                                 <Button
                                   variant="outline"
@@ -587,6 +691,194 @@ export default function Dashboard() {
               Assign Professional
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Case Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Case Details</DialogTitle>
+            <DialogDescription>
+              Update case information for {editingDispute?.case_id}
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingDispute && (
+            <form onSubmit={handleEditSubmit} className="space-y-6">
+              {/* Applicant Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Applicant Information</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="applicant_name">Full Name *</Label>
+                    <Input
+                      id="applicant_name"
+                      name="applicant_name"
+                      defaultValue={editingDispute.applicant_name}
+                      maxLength={100}
+                      required
+                    />
+                    {validationErrors.applicant_name && (
+                      <p className="text-sm text-destructive">{validationErrors.applicant_name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="applicant_phone">Phone *</Label>
+                    <Input
+                      id="applicant_phone"
+                      name="applicant_phone"
+                      type="tel"
+                      defaultValue={editingDispute.applicant_phone}
+                      maxLength={15}
+                      required
+                    />
+                    {validationErrors.applicant_phone && (
+                      <p className="text-sm text-destructive">{validationErrors.applicant_phone}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="applicant_email">Email *</Label>
+                    <Input
+                      id="applicant_email"
+                      name="applicant_email"
+                      type="email"
+                      defaultValue={editingDispute.applicant_email}
+                      maxLength={255}
+                      required
+                    />
+                    {validationErrors.applicant_email && (
+                      <p className="text-sm text-destructive">{validationErrors.applicant_email}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="applicant_address">Address</Label>
+                    <Input
+                      id="applicant_address"
+                      name="applicant_address"
+                      defaultValue={editingDispute.applicant_address || ""}
+                      maxLength={500}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Respondent Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Respondent Information</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="respondent_name">Full Name *</Label>
+                    <Input
+                      id="respondent_name"
+                      name="respondent_name"
+                      defaultValue={editingDispute.respondent_name}
+                      maxLength={100}
+                      required
+                    />
+                    {validationErrors.respondent_name && (
+                      <p className="text-sm text-destructive">{validationErrors.respondent_name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="respondent_phone">Phone</Label>
+                    <Input
+                      id="respondent_phone"
+                      name="respondent_phone"
+                      type="tel"
+                      defaultValue={editingDispute.respondent_phone || ""}
+                      maxLength={15}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="respondent_email">Email</Label>
+                    <Input
+                      id="respondent_email"
+                      name="respondent_email"
+                      type="email"
+                      defaultValue={editingDispute.respondent_email || ""}
+                      maxLength={255}
+                    />
+                    {validationErrors.respondent_email && (
+                      <p className="text-sm text-destructive">{validationErrors.respondent_email}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="respondent_address">Address</Label>
+                    <Input
+                      id="respondent_address"
+                      name="respondent_address"
+                      defaultValue={editingDispute.respondent_address || ""}
+                      maxLength={500}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Dispute Details */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Dispute Details</h3>
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="contract_type">Contract Type *</Label>
+                    <Input
+                      id="contract_type"
+                      name="contract_type"
+                      defaultValue={editingDispute.contract_type}
+                      maxLength={100}
+                      required
+                    />
+                    {validationErrors.contract_type && (
+                      <p className="text-sm text-destructive">{validationErrors.contract_type}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dispute_description">Dispute Description *</Label>
+                    <Textarea
+                      id="dispute_description"
+                      name="dispute_description"
+                      defaultValue={editingDispute.dispute_description}
+                      rows={5}
+                      maxLength={2000}
+                      required
+                    />
+                    {validationErrors.dispute_description && (
+                      <p className="text-sm text-destructive">{validationErrors.dispute_description}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status *</Label>
+                    <Select name="status" defaultValue={editingDispute.status} required>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pending Review">Pending Review</SelectItem>
+                        <SelectItem value="In Progress - Professional Assigned">In Progress - Professional Assigned</SelectItem>
+                        <SelectItem value="In Progress - Meeting Scheduled">In Progress - Meeting Scheduled</SelectItem>
+                        <SelectItem value="In Progress - Under Mediation">In Progress - Under Mediation</SelectItem>
+                        <SelectItem value="Resolved - Settlement Reached">Resolved - Settlement Reached</SelectItem>
+                        <SelectItem value="Resolved - Award Issued">Resolved - Award Issued</SelectItem>
+                        <SelectItem value="Closed">Closed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {validationErrors.status && (
+                      <p className="text-sm text-destructive">{validationErrors.status}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
