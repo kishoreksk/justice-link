@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@4.0.0";
+import { Resend } from "https://esm.sh/resend@4.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -203,14 +203,14 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send email to applicant
-    const applicantEmail = await resend.emails.send({
+    const applicantEmailResult = await resend.emails.send({
       from: "eNyaya Resolve <onboarding@resend.dev>",
       to: [applicantEmail],
       subject: subject,
       html: htmlContent,
     });
 
-    console.log("Applicant email sent:", applicantEmail);
+    console.log("Applicant email sent:", applicantEmailResult);
 
     // Send email to respondent
     const respondentEmailResult = await resend.emails.send({
@@ -226,7 +226,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: true, 
         message: "Notifications sent successfully",
-        applicantEmailId: applicantEmail.data?.id,
+        applicantEmailId: applicantEmailResult.data?.id,
         respondentEmailId: respondentEmailResult.data?.id
       }),
       {

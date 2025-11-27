@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CaseMeetingManager } from "@/components/CaseMeetingManager";
+import { PDFViewer } from "@/components/PDFViewer";
 import {
   Table,
   TableBody,
@@ -41,6 +42,7 @@ interface Dispute {
   applicant_email: string;
   applicant_phone: string;
   respondent_name: string;
+  respondent_email: string;
   contract_type: string;
   resolution_type: string;
   dispute_description: string;
@@ -53,6 +55,7 @@ interface Dispute {
   meeting_link?: string;
   document_type?: string;
   final_document?: any;
+  award_pdf_url?: string;
 }
 
 interface Professional {
@@ -373,13 +376,16 @@ export default function Dashboard() {
                         
                         {dispute.final_document && (
                           <div className="border-t border-border pt-3 mt-3">
-                            <Badge variant="secondary" className="text-xs">
+                            <Badge variant="secondary" className="text-xs mb-3">
                               {dispute.document_type === "arbitration_award" ? "Arbitration Award Issued" : "Mediation Report Issued"}
                             </Badge>
+                            {dispute.award_pdf_url && (
+                              <PDFViewer disputeId={dispute.id} pdfUrl={dispute.award_pdf_url} />
+                            )}
                           </div>
                         )}
                         
-                        <Button asChild className="w-full">
+                        <Button asChild className="w-full mt-4">
                           <Link to={`/track?caseId=${dispute.case_id}`}>
                             <FileText className="mr-2 h-4 w-4" />
                             Track Case Progress
