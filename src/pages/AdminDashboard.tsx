@@ -208,15 +208,8 @@ export default function AdminDashboard() {
       });
     } else {
       // Call edge function to create professional account
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-professional`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('create-professional', {
+        body: {
           name: formData.name,
           email: formData.email,
           password: formData.password,
@@ -225,15 +218,22 @@ export default function AdminDashboard() {
           specialization: formData.specialization,
           experience: formData.experience,
           status: formData.status,
-        })
+        }
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
+      if (error) {
         toast({
           title: "Error",
-          description: result.error || "Failed to create professional account.",
+          description: error.message || "Failed to create professional account.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data && !data.success) {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to create professional account.",
           variant: "destructive",
         });
         return;
