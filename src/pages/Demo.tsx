@@ -437,139 +437,362 @@ export default function Demo() {
           </TabsContent>
 
           {/* Features Tab */}
-          <TabsContent value="features" className="space-y-6 animate-fade-in">
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card className="group border-2 hover:border-primary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="bg-gradient-to-br from-primary/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
+          <TabsContent value="features" className="space-y-8 animate-fade-in">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                Powerful Features
+              </h2>
+              <p className="text-muted-foreground">Comprehensive capabilities powering the eNyaya Resolve platform</p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {/* PDF Award Generation */}
+              <Card className="group relative overflow-hidden border-2 hover:border-primary/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative bg-gradient-to-br from-primary/10 to-transparent pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                      <Award className="h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" />
+                    </div>
+                    <Badge variant="outline" className="border-primary/50 text-primary">Essential</Badge>
+                  </div>
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
                     PDF Award Generation
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm pt-6">
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Technology:</strong> jsPDF library for client-side generation</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Contents:</strong> Case details, parties, proceedings, resolution, terms, signature</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Storage:</strong> Supabase Storage bucket with RLS policies</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Viewing:</strong> react-pdf with zoom controls, page navigation</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Security:</strong> Only accessible to case parties and professionals</p>
+                <CardContent className="relative space-y-4 text-sm pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Client-Side Generation</p>
+                        <p className="text-muted-foreground text-xs">jsPDF library for instant PDF creation</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Secure Storage</p>
+                        <p className="text-muted-foreground text-xs">RLS-protected Supabase buckets</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Advanced Viewer</p>
+                        <p className="text-muted-foreground text-xs">Zoom, navigate, and download options</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="group border-2 hover:border-secondary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="bg-gradient-to-br from-secondary/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="h-6 w-6 text-secondary group-hover:scale-110 transition-transform" />
+              {/* Notification System */}
+              <Card className="group relative overflow-hidden border-2 hover:border-secondary/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative bg-gradient-to-br from-secondary/10 to-transparent pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-4 rounded-2xl bg-secondary/10 group-hover:bg-secondary group-hover:scale-110 transition-all duration-300">
+                      <Bell className="h-8 w-8 text-secondary group-hover:text-secondary-foreground transition-colors" />
+                    </div>
+                    <Badge variant="outline" className="border-secondary/50 text-secondary">Real-time</Badge>
+                  </div>
+                  <CardTitle className="text-xl group-hover:text-secondary transition-colors">
                     Notification System
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm pt-6">
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Trigger Events:</strong> Assignment, meeting scheduled, document issued</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Channels:</strong> Email (Resend API) + In-app notifications</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Edge Functions:</strong> send-dispute-notification for email delivery</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Database:</strong> notifications table with read/unread status</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Real-time:</strong> Bell icon with unread count</p>
+                <CardContent className="relative space-y-4 text-sm pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Multi-Channel</p>
+                        <p className="text-muted-foreground text-xs">Email + in-app notifications</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Edge Functions</p>
+                        <p className="text-muted-foreground text-xs">Serverless email delivery</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Status Tracking</p>
+                        <p className="text-muted-foreground text-xs">Read/unread management</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="group border-2 hover:border-accent/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="bg-gradient-to-br from-accent/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-6 w-6 text-accent group-hover:scale-110 transition-transform" />
-                    Security & Access Control
+              {/* Security */}
+              <Card className="group relative overflow-hidden border-2 hover:border-accent/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative bg-gradient-to-br from-accent/10 to-transparent pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-4 rounded-2xl bg-accent/10 group-hover:bg-accent group-hover:scale-110 transition-all duration-300">
+                      <Shield className="h-8 w-8 text-accent group-hover:text-accent-foreground transition-colors" />
+                    </div>
+                    <Badge variant="outline" className="border-accent/50 text-accent">Critical</Badge>
+                  </div>
+                  <CardTitle className="text-xl group-hover:text-accent transition-colors">
+                    Security & Access
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm pt-6">
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Authentication:</strong> Email/password with auto-confirm</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">RLS Policies:</strong> Row-level security on all tables</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Roles:</strong> Admin, Professional, Client (separate table)</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Data Privacy:</strong> Users see only their own disputes</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">File Security:</strong> Signed URLs with expiration</p>
+                <CardContent className="relative space-y-4 text-sm pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Row-Level Security</p>
+                        <p className="text-muted-foreground text-xs">Database-level access control</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Role-Based Access</p>
+                        <p className="text-muted-foreground text-xs">Admin, Professional, Client roles</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Encrypted Storage</p>
+                        <p className="text-muted-foreground text-xs">Secure file handling with signed URLs</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="group border-2 hover:border-primary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="bg-gradient-to-br from-primary/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Search className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
+              {/* Case Tracking */}
+              <Card className="group relative overflow-hidden border-2 hover:border-primary/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative bg-gradient-to-br from-primary/10 to-transparent pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                      <Search className="h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" />
+                    </div>
+                    <Badge variant="outline" className="border-primary/50 text-primary">Public</Badge>
+                  </div>
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
                     Case Tracking
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm pt-6">
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Unique ID:</strong> ODR/YYYY/NNNNNN format for each case</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Timeline:</strong> Visual timeline of all case events</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Updates:</strong> case_updates table for history tracking</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Status:</strong> Pending → Assigned → Meeting → Resolved</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-primary">Access:</strong> Public tracking with case ID lookup</p>
+                <CardContent className="relative space-y-4 text-sm pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Unique Case IDs</p>
+                        <p className="text-muted-foreground text-xs">ODR/YYYY/NNNNNN format</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Visual Timeline</p>
+                        <p className="text-muted-foreground text-xs">Complete event history</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Status Updates</p>
+                        <p className="text-muted-foreground text-xs">Real-time progress tracking</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="group border-2 hover:border-secondary/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="bg-gradient-to-br from-secondary/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-6 w-6 text-secondary group-hover:scale-110 transition-transform" />
+              {/* Meeting Management */}
+              <Card className="group relative overflow-hidden border-2 hover:border-secondary/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative bg-gradient-to-br from-secondary/10 to-transparent pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-4 rounded-2xl bg-secondary/10 group-hover:bg-secondary group-hover:scale-110 transition-all duration-300">
+                      <Calendar className="h-8 w-8 text-secondary group-hover:text-secondary-foreground transition-colors" />
+                    </div>
+                    <Badge variant="outline" className="border-secondary/50 text-secondary">Virtual</Badge>
+                  </div>
+                  <CardTitle className="text-xl group-hover:text-secondary transition-colors">
                     Meeting Management
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm pt-6">
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Scheduling:</strong> Professionals set date/time and virtual links</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Database:</strong> dispute_meetings table tracks all meetings</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Integration:</strong> Google Meet, Zoom, or any video platform</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Notifications:</strong> Automatic email to both parties</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-secondary">Display:</strong> Shown on tracking page and dashboards</p>
+                <CardContent className="relative space-y-4 text-sm pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Flexible Scheduling</p>
+                        <p className="text-muted-foreground text-xs">Date, time, and link management</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Platform Agnostic</p>
+                        <p className="text-muted-foreground text-xs">Works with any video platform</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Auto Notifications</p>
+                        <p className="text-muted-foreground text-xs">Email alerts to all parties</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="group border-2 hover:border-accent/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="bg-gradient-to-br from-accent/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-6 w-6 text-accent group-hover:scale-110 transition-transform" />
+              {/* Document Management */}
+              <Card className="group relative overflow-hidden border-2 hover:border-accent/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative bg-gradient-to-br from-accent/10 to-transparent pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-4 rounded-2xl bg-accent/10 group-hover:bg-accent group-hover:scale-110 transition-all duration-300">
+                      <FileText className="h-8 w-8 text-accent group-hover:text-accent-foreground transition-colors" />
+                    </div>
+                    <Badge variant="outline" className="border-accent/50 text-accent">Core</Badge>
+                  </div>
+                  <CardTitle className="text-xl group-hover:text-accent transition-colors">
                     Document Management
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm pt-6">
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Submission:</strong> dispute_documents table tracks submitted docs</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Types:</strong> Arbitration Award, Mediation Report</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Metadata:</strong> Document name, description, submitted by</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Viewer:</strong> Embedded PDF viewer with download option</p>
-                  <p className="hover:bg-muted/50 p-2 rounded transition-colors"><strong className="text-accent">Format:</strong> Professional-grade PDF with digital signature</p>
+                <CardContent className="relative space-y-4 text-sm pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Submission Tracking</p>
+                        <p className="text-muted-foreground text-xs">Complete audit trail of documents</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Multiple Types</p>
+                        <p className="text-muted-foreground text-xs">Awards, reports, evidence</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/5 transition-colors">
+                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Digital Signatures</p>
+                        <p className="text-muted-foreground text-xs">Legally binding documents</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="border-2 border-primary/20 shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
-                <CardTitle className="text-xl">Technical Stack</CardTitle>
+            {/* Technical Stack Section */}
+            <Card className="border-2 border-primary/20 shadow-2xl overflow-hidden mt-12">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5"></div>
+              <CardHeader className="relative bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-b-2">
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-secondary">
+                    <Scale className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  Technical Stack
+                </CardTitle>
+                <CardDescription>Modern technologies powering the platform</CardDescription>
               </CardHeader>
-              <CardContent className="pt-6">
-                <div className="grid gap-6 md:grid-cols-3">
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-primary/5 to-transparent border hover:border-primary/50 transition-all">
-                    <h4 className="font-semibold mb-3 text-primary">Frontend</h4>
-                    <ul className="text-sm space-y-2 text-muted-foreground">
-                      <li className="hover:text-foreground transition-colors">• React + TypeScript</li>
-                      <li className="hover:text-foreground transition-colors">• Vite build tool</li>
-                      <li className="hover:text-foreground transition-colors">• Tailwind CSS</li>
-                      <li className="hover:text-foreground transition-colors">• shadcn/ui components</li>
-                      <li className="hover:text-foreground transition-colors">• React Router</li>
-                      <li className="hover:text-foreground transition-colors">• React Query</li>
+              <CardContent className="relative pt-8">
+                <div className="grid gap-8 md:grid-cols-3">
+                  <div className="group p-6 rounded-xl bg-gradient-to-br from-primary/5 to-transparent border-2 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 rounded-lg bg-primary/20 group-hover:bg-primary group-hover:scale-110 transition-all">
+                        <Users className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-primary">Frontend</h4>
+                    </div>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-primary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                        <span className="text-muted-foreground">React + TypeScript</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-primary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                        <span className="text-muted-foreground">Vite build tool</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-primary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                        <span className="text-muted-foreground">Tailwind CSS</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-primary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                        <span className="text-muted-foreground">shadcn/ui components</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-primary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                        <span className="text-muted-foreground">React Router</span>
+                      </li>
                     </ul>
                   </div>
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-secondary/5 to-transparent border hover:border-secondary/50 transition-all">
-                    <h4 className="font-semibold mb-3 text-secondary">Backend</h4>
-                    <ul className="text-sm space-y-2 text-muted-foreground">
-                      <li className="hover:text-foreground transition-colors">• Supabase (PostgreSQL)</li>
-                      <li className="hover:text-foreground transition-colors">• Edge Functions (Deno)</li>
-                      <li className="hover:text-foreground transition-colors">• Row Level Security</li>
-                      <li className="hover:text-foreground transition-colors">• Authentication</li>
-                      <li className="hover:text-foreground transition-colors">• Storage API</li>
+                  
+                  <div className="group p-6 rounded-xl bg-gradient-to-br from-secondary/5 to-transparent border-2 hover:border-secondary/50 transition-all duration-300 hover:-translate-y-1">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 rounded-lg bg-secondary/20 group-hover:bg-secondary group-hover:scale-110 transition-all">
+                        <Shield className="h-5 w-5 text-secondary group-hover:text-secondary-foreground transition-colors" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-secondary">Backend</h4>
+                    </div>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-secondary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-secondary"></div>
+                        <span className="text-muted-foreground">Supabase (PostgreSQL)</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-secondary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-secondary"></div>
+                        <span className="text-muted-foreground">Edge Functions (Deno)</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-secondary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-secondary"></div>
+                        <span className="text-muted-foreground">Row Level Security</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-secondary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-secondary"></div>
+                        <span className="text-muted-foreground">Authentication</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-secondary/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-secondary"></div>
+                        <span className="text-muted-foreground">Storage API</span>
+                      </li>
                     </ul>
                   </div>
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-accent/5 to-transparent border hover:border-accent/50 transition-all">
-                    <h4 className="font-semibold mb-3 text-accent">Integrations</h4>
-                    <ul className="text-sm space-y-2 text-muted-foreground">
-                      <li className="hover:text-foreground transition-colors">• Resend (Email)</li>
-                      <li className="hover:text-foreground transition-colors">• jsPDF (Generation)</li>
-                      <li className="hover:text-foreground transition-colors">• react-pdf (Viewing)</li>
-                      <li className="hover:text-foreground transition-colors">• Lucide (Icons)</li>
+                  
+                  <div className="group p-6 rounded-xl bg-gradient-to-br from-accent/5 to-transparent border-2 hover:border-accent/50 transition-all duration-300 hover:-translate-y-1">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent group-hover:scale-110 transition-all">
+                        <Award className="h-5 w-5 text-accent group-hover:text-accent-foreground transition-colors" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-accent">Integrations</h4>
+                    </div>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-accent/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-accent"></div>
+                        <span className="text-muted-foreground">Resend (Email)</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-accent/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-accent"></div>
+                        <span className="text-muted-foreground">jsPDF (Generation)</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-accent/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-accent"></div>
+                        <span className="text-muted-foreground">react-pdf (Viewing)</span>
+                      </li>
+                      <li className="flex items-center gap-2 p-2 rounded hover:bg-accent/5 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-accent"></div>
+                        <span className="text-muted-foreground">Lucide (Icons)</span>
+                      </li>
                     </ul>
                   </div>
                 </div>
